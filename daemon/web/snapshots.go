@@ -144,7 +144,7 @@ func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
 
 	if end.IsZero() && start.IsZero() {
 		current := time.Now().UTC()
-		end = time.Date(current.Year(), current.Month(), current.Day(), 0, 0, 0, 0, time.UTC)
+		end = time.Date(current.Year(), current.Month(), current.Day(), current.Hour(), 0, 0, 0, time.UTC)
 		start = end.AddDate(0, -12, 0)
 	} else if end.IsZero() {
 		end = start.AddDate(0, 12, 0)
@@ -152,17 +152,17 @@ func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
 		start = end.AddDate(0, -12, 0)
 	}
 
-	end = time.Date(end.Year(), end.Month()+4, 1, 0, 0, 0, 0, time.UTC)
+	end = time.Date(end.Year(), end.Month()+4, 1, end.Hour(), 0, 0, 0, time.UTC)
 	end = end.AddDate(0, 0, -1)
-	start = time.Date(start.Year(), start.Month(), 1, 0, 0, 0, 0, time.UTC)
+	start = time.Date(start.Year(), start.Month(), 1, start.Hour(), 0, 0, 0, time.UTC)
 
 	if end.Before(start) {
 		router.HandleError("end must be after start", 400, w, r)
 		return
 	}
 
-	start = time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, time.UTC)
-	end = time.Date(end.Year(), end.Month(), end.Day(), 0, 0, 0, 0, time.UTC)
+	start = time.Date(start.Year(), start.Month(), start.Day(), start.Hour(), 0, 0, 0, time.UTC)
+	end = time.Date(end.Year(), end.Month(), end.Day(), end.Hour(), 0, 0, 0, time.UTC)
 
 	snapshotDays := make(map[int64]types.HostSnapshot)
 
@@ -181,8 +181,25 @@ func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
 		return
 	}
 
-	for _, snapshot := range hostSnapshots {
-		snapshotDays[snapshot.Timestamp.Unix()] = snapshot
+	for _, hourSnap := range hostSnapshots {
+		timestamp := hourSnap.Timestamp.UTC()
+		timestamp = time.Date(timestamp.Year(), timestamp.Month(), timestamp.Day(), start.Hour(), 0, 0, 0, time.UTC)
+
+		daySnap := snapshotDays[timestamp.Unix()]
+
+		daySnap.Timestamp = timestamp
+		daySnap.ActiveContracts += hourSnap.ActiveContracts
+		daySnap.NewContracts += hourSnap.NewContracts
+		daySnap.ExpiredContracts += hourSnap.ExpiredContracts
+		daySnap.SuccessfulContracts += hourSnap.SuccessfulContracts
+		daySnap.FailedContracts += hourSnap.FailedContracts
+
+		daySnap.Payout = daySnap.Payout.Add(hourSnap.Payout)
+		daySnap.EarnedRevenue = daySnap.EarnedRevenue.Add(hourSnap.EarnedRevenue)
+		daySnap.PotentialRevenue = daySnap.PotentialRevenue.Add(hourSnap.PotentialRevenue)
+		daySnap.BurntCollateral = daySnap.BurntCollateral.Add(hourSnap.BurntCollateral)
+
+		snapshotDays[timestamp.Unix()] = daySnap
 	}
 
 	snapshots := make([]types.HostSnapshot, 0, len(snapshotDays))

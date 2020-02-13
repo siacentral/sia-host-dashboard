@@ -46,7 +46,7 @@ func snapshotID(timestamp time.Time) uint64 {
 }
 
 func snapshotTime(timestamp time.Time) time.Time {
-	return time.Date(timestamp.UTC().Year(), timestamp.UTC().Month(), timestamp.UTC().Day(), 0, 0, 0, 0, time.UTC)
+	return timestamp.UTC().Truncate(time.Hour)
 }
 
 func getContracts() ([]mergedContract, error) {

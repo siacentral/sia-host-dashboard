@@ -2,7 +2,6 @@ package persist
 
 import (
 	"bytes"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -11,20 +10,9 @@ import (
 	"gitlab.com/NebulousLabs/bolt"
 )
 
-func snapshotTimeID(timestamp time.Time) []byte {
-	buf := make([]byte, 8)
-	timestamp = timestamp.UTC()
-	timestamp = time.Date(timestamp.Year(), timestamp.Month(), timestamp.Day(), 0, 0, 0, 0, time.UTC)
-
-	binary.BigEndian.PutUint64(buf, uint64(timestamp.UnixNano()))
-
-	return buf
-}
-
 //SaveHostSnapshot SaveHostSnapshot
 func SaveHostSnapshot(snapshot types.HostSnapshot) error {
-	snapshot.Timestamp = snapshot.Timestamp.UTC()
-	snapshot.Timestamp = time.Date(snapshot.Timestamp.Year(), snapshot.Timestamp.Month(), snapshot.Timestamp.Day(), 0, 0, 0, 0, time.UTC)
+	snapshot.Timestamp = snapshot.Timestamp.Truncate(time.Hour).UTC()
 
 	return db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketHostSnapshots)
@@ -35,7 +23,7 @@ func SaveHostSnapshot(snapshot types.HostSnapshot) error {
 			return fmt.Errorf("json encode: %s", err)
 		}
 
-		bucket.Put(snapshotTimeID(snapshot.Timestamp), buf)
+		bucket.Put(timeID(snapshot.Timestamp), buf)
 
 		return nil
 	})
@@ -43,8 +31,8 @@ func SaveHostSnapshot(snapshot types.HostSnapshot) error {
 
 //GetHostSnapshots returns all snapshots between two timestamps (inclusive)
 func GetHostSnapshots(startTime, endTime time.Time) (snapshots []types.HostSnapshot, err error) {
-	startID := snapshotTimeID(startTime)
-	endID := snapshotTimeID(endTime)
+	startID := timeID(startTime)
+	endID := timeID(endTime)
 
 	err = db.View(func(tx *bolt.Tx) error {
 		c := tx.Bucket(bucketHostSnapshots).Cursor()

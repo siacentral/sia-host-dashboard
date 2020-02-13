@@ -11,7 +11,7 @@ import (
 	"gitlab.com/NebulousLabs/bolt"
 )
 
-func metaTimeID(timestamp time.Time) []byte {
+func timeID(timestamp time.Time) []byte {
 	buf := make([]byte, 8)
 	seconds := uint64(timestamp.Truncate(time.Hour).Unix())
 
@@ -33,7 +33,7 @@ func SaveHostMeta(meta types.HostMeta) error {
 			return fmt.Errorf("json encode: %s", err)
 		}
 
-		bucket.Put(metaTimeID(meta.Timestamp), buf)
+		bucket.Put(timeID(meta.Timestamp), buf)
 
 		return nil
 	})
@@ -41,8 +41,8 @@ func SaveHostMeta(meta types.HostMeta) error {
 
 //GetHostMetadata returns all metadata snapshots between two timestamps (inclusive)
 func GetHostMetadata(startTime, endTime time.Time) (metadata []types.HostMeta, err error) {
-	startID := metaTimeID(startTime)
-	endID := metaTimeID(endTime)
+	startID := timeID(startTime)
+	endID := timeID(endTime)
 
 	err = db.View(func(tx *bolt.Tx) error {
 		c := tx.Bucket(bucketHostMeta).Cursor()

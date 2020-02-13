@@ -200,7 +200,7 @@ function formatSiacoinString(val, dec) {
 		value: new Intl.NumberFormat([], {
 			type: 'decimal',
 			minimumFractionDigits: dec,
-			maximumFractionDigits: 20
+			maximumFractionDigits: 5
 		}).format(roundNumber(val.dividedBy(1e24), dec)),
 		label: 'sc'
 	};
@@ -220,14 +220,14 @@ function formatCryptoString(val, dec, currency, rate) {
 		value: new Intl.NumberFormat([], {
 			type: 'decimal',
 			minimumFractionDigits: dec,
-			maximumFractionDigits: 20
+			maximumFractionDigits: 5
 		}).format(roundNumber(val.dividedBy(1e24).times(rate), dec)),
 		label: currency.toLowerCase()
 	};
 }
 
 function formatCurrencyString(val, currency, rate) {
-	const formatter = new Intl.NumberFormat([], { style: 'currency', currency: currency || 'usd', maximumFractionDigits: 20 });
+	const formatter = new Intl.NumberFormat([], { style: 'currency', currency: currency || 'usd', maximumFractionDigits: 5 });
 
 	if (val.isEqualTo(0) || !rate) {
 		return {

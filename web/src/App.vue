@@ -30,7 +30,7 @@ import { mapActions } from 'vuex';
 import { getStatus, getSnapshots, getTotals, getCoinPrice, getAverageSettings } from '@/utils/api';
 import { formatDate } from '@/utils/format';
 
-import DashboardCharts from '@/components/DashboardCharts';
+import DashboardCharts from '@/components/charts/DashboardCharts';
 import DashboardData from '@/components/DashboardData';
 import HostPricing from '@/components/HostPricing';
 import SiaCentral from '@/assets/siacentral.svg';

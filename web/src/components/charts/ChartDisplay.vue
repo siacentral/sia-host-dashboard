@@ -3,9 +3,7 @@
 		<div class="chart-title">{{ title }}</div>
 		<div class="chart-selected">{{ selectedLabel }}</div>
 		<div class="chart-sub">
-			<div v-for="(v, i) in text" :key="i">
-
-			</div>
+			<slot />
 		</div>
 		<div class="chart">
 			<stacked-chart :nodes="nodes" :colors="colors" :fills="fills" @selected="onSetSelected" />
@@ -16,7 +14,7 @@
 </template>
 
 <script>
-import StackedChart from '@/components/StackedChart';
+import StackedChart from '@/components/charts/StackedChart';
 
 export default {
 	components: {
@@ -27,8 +25,7 @@ export default {
 		nodes: Array,
 		colors: Array,
 		fills: Array,
-		labels: Array,
-		text: Array
+		labels: Array
 	},
 	data() {
 		return {
@@ -46,8 +43,8 @@ export default {
 	methods: {
 		onSetSelected(i) {
 			try {
-				console.log(i);
 				this.active = i;
+				this.$emit('selected', i);
 			} catch (ex) {
 				console.error('ChartDisplay.onSetSelected', ex);
 			}

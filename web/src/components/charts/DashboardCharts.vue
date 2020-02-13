@@ -3,20 +3,28 @@
 		<chart-display title="Revenue"
 			:nodes="revenueData.data"
 			:labels="revenueData.labels"
+			:text="revenueData.values"
 			:colors="revenueColors"
-			:fills="revenueFills" />
+			:fills="revenueFills"
+			@select="onSelectRevenue">
+
+		</chart-display>
 		<chart-display title="Contracts"
 			:nodes="contractData.data"
 			:labels="contractData.labels"
+			:text="revenueData.values"
 			:colors="contractColors"
-			:fills="contractFills"  />
+			:fills="contractFills">
+
+		</chart-display>
 	</div>
 </template>
 
 <script>
 import BigNumber from 'bignumber.js';
 
-import ChartDisplay from '@/components/ChartDisplay';
+import ChartDisplay from '@/components/charts/ChartDisplay';
+// import { formatPriceString } from '@/utils/format';
 
 export default {
 	components: {
@@ -63,8 +71,7 @@ export default {
 				return d;
 			}, {
 				data: [[], []],
-				labels: [],
-				values: [[], []]
+				labels: []
 			});
 
 			return data;
@@ -109,8 +116,7 @@ export default {
 				return d;
 			}, {
 				data: [[], [], []],
-				labels: [],
-				values: [[], [], []]
+				labels: []
 			});
 
 			return data;
@@ -140,6 +146,11 @@ export default {
 				'#843b3b',
 				'#227051'
 			];
+		}
+	},
+	methods: {
+		onSelectRevenue() {
+
 		}
 	}
 };

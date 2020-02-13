@@ -38,7 +38,7 @@ export default {
 	computed: {
 		selectedLabel() {
 			if (this.active === -1 || !this.labels[this.active - 1])
-				return '';
+				return `${this.labels[0]} - ${this.labels[this.labels.length - 1]}`;
 
 			return this.labels[this.active - 1];
 		}
@@ -46,6 +46,7 @@ export default {
 	methods: {
 		onSetSelected(i) {
 			try {
+				console.log(i);
 				this.active = i;
 			} catch (ex) {
 				console.error('ChartDisplay.onSetSelected', ex);

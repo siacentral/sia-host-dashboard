@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
@@ -70,6 +71,11 @@ func (router *APIRouter) ListenAndServe() error {
 
 	handler = http.TimeoutHandler(handler, time.Minute*1, "timeout")
 
+	l, err := net.Listen("tcp", router.options.ListenAddress)
+	if err != nil {
+		return err
+	}
+
 	router.server = &http.Server{
 		Handler:      handler,
 		Addr:         router.options.ListenAddress,
@@ -77,7 +83,11 @@ func (router *APIRouter) ListenAndServe() error {
 		ReadTimeout:  60 * time.Second,
 	}
 
-	return router.server.ListenAndServe()
+	if err := router.server.Serve(l); err != nil && err != http.ErrServerClosed {
+		return err
+	}
+
+	return nil
 }
 
 //Shutdown attempts to gracefully shutdown the running server

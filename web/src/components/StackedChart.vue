@@ -73,7 +73,7 @@ export default {
 			return this.stacked.map((ps, i) => {
 				const coords = ps.map((v, j) => [
 					(this.nodeWidth / 2) + this.nodeWidth * j,
-					new BigNumber(this.height - 50).minus(v.div(this.maxY).times(this.height * 0.7)).toNumber()
+					new BigNumber(this.height - 60).minus(v.div(this.maxY).times(this.height * 0.7)).toNumber()
 				]);
 
 				coords.unshift([this.nodeWidth * -1, coords[0][1]]);
@@ -98,7 +98,7 @@ export default {
 	},
 	data() {
 		return {
-			width: 600,
+			width: 800,
 			height: 300
 		};
 	}

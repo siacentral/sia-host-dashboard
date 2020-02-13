@@ -18,6 +18,15 @@
 				:data-num="j"
 				r="4" />
 		</template>
+		<rect
+			v-for="i in len"
+			:width="`${nodeWidth}px`"
+			:x="`${nodeWidth * (i - 1)}px`"
+			:height="`${height}px`"
+			:key="i - 1"
+			fill="transparent"
+			@mouseover="$emit('selected', i)"
+			@mouseout="$emit('selected', -1)"/>
 	</svg>
 </template>
 

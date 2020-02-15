@@ -91,6 +91,16 @@ func syncHostSnapshots(contracts []mergedContract) {
 	snapshots := make(map[uint64]types.HostSnapshot)
 
 	for _, contract := range contracts {
+		endTimestamp := snapshotTime(contract.ProofDeadlineTimestamp)
+
+		for current := snapshotTime(contract.NegotiationTimestamp); current.Before(endTimestamp); current = current.Add(time.Hour) {
+			activeID := snapshotID(current)
+			snapshot := snapshots[activeID]
+			snapshot.ActiveContracts++
+			snapshot.Timestamp = time.Unix(int64(activeID), 0)
+			snapshots[activeID] = snapshot
+		}
+
 		switch contract.Status {
 		case "obligationSucceeded":
 			var successfulID uint64
@@ -128,16 +138,6 @@ func syncHostSnapshots(contracts []mergedContract) {
 			snapshots[failedID] = snapshot
 			break
 		case "obligationUnresolved":
-			endTimestamp := snapshotTime(contract.ProofDeadlineTimestamp)
-
-			for current := snapshotTime(time.Now()); current.Before(endTimestamp); current = current.AddDate(0, 0, 1) {
-				activeID := snapshotID(current)
-				snapshot := snapshots[activeID]
-				snapshot.ActiveContracts++
-				snapshot.Timestamp = time.Unix(int64(activeID), 0)
-				snapshots[activeID] = snapshot
-			}
-
 			expirationID := snapshotID(contract.ExpirationTimestamp)
 			snapshot := snapshots[expirationID]
 			snapshot.PotentialRevenue = snapshot.PotentialRevenue.Add(contract.PotentialRevenue)

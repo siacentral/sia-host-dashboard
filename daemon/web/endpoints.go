@@ -4,13 +4,6 @@ import "github.com/siacentral/host-dashboard/daemon/web/router"
 
 var endpoints = []router.APIEndpoint{
 	router.APIEndpoint{
-		Name:    "Get Metadata",
-		Method:  "GET",
-		Pattern: "/metadata",
-		Secure:  false,
-		Handler: handleGetHostMetadata,
-	},
-	router.APIEndpoint{
 		Name:    "Get Snapshots",
 		Method:  "GET",
 		Pattern: "/snapshots",

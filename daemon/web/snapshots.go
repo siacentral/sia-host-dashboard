@@ -3,7 +3,6 @@ package web
 import (
 	"log"
 	"net/http"
-	"sort"
 	"strconv"
 	"time"
 
@@ -53,108 +52,31 @@ func parseTimeParams(params ...string) ([]time.Time, error) {
 			return []time.Time{}, err
 		}
 
-		timestamps = append(timestamps, time.Unix(seconds, 0))
+		timestamps = append(timestamps, time.Unix(seconds, 0).UTC())
 	}
 
 	return timestamps, nil
 }
 
-func handleGetHostMetadata(w http.ResponseWriter, r *router.APIRequest) {
-	timestamps, err := parseTimeParams(r.Request.URL.Query().Get("start"), r.Request.URL.Query().Get("end"))
-
-	if err != nil {
-		router.HandleError("unable to parse start or end time", 400, w, r)
-		return
-	}
-
-	start := timestamps[0]
-	end := timestamps[1]
-
-	if end.IsZero() && start.IsZero() {
-		end = time.Now().UTC().Truncate(time.Hour)
-		start = end.AddDate(0, 0, -30)
-	} else if end.IsZero() {
-		end = start.AddDate(0, 0, 30)
-	} else if start.IsZero() {
-		start = end.AddDate(0, 0, -30)
-	}
-
-	if end.Before(start) {
-		router.HandleError("end must be after start", 400, w, r)
-		return
-	}
-
-	start = time.Date(start.Year(), start.Month(), start.Day(), start.Hour(), 0, 0, 0, time.UTC)
-	end = time.Date(end.Year(), end.Month(), end.Day(), start.Hour(), 0, 0, 0, time.UTC)
-
-	metaHours := make(map[int64]types.HostMeta)
-
-	// fill the time series with all possible values even if no data was stored
-	for d := start; d.Before(end); d = d.Add(time.Hour) {
-		metaHours[d.Unix()] = types.HostMeta{
-			Timestamp: d,
-		}
-	}
-
-	hostMeta, err := persist.GetHostMetadata(start, end)
-
-	if err != nil {
-		router.HandleError("unable to retrieve snapshots", 400, w, r)
-		log.Println(err)
-		return
-	}
-
-	for _, meta := range hostMeta {
-		metaHours[meta.Timestamp.Unix()] = meta
-	}
-
-	metadata := make([]types.HostMeta, 0, len(metaHours))
-
-	for _, meta := range metaHours {
-		metadata = append(metadata, meta)
-	}
-
-	sort.Slice(metadata, func(i, j int) bool {
-		return metadata[i].Timestamp.Before(metadata[j].Timestamp)
-	})
-
-	router.SendJSONResponse(hostMetaResponse{
-		hostResponse: hostResponse{
-			APIResponse: router.APIResponse{
-				Message: "",
-				Type:    "success",
-			},
-			Start: start,
-			End:   end,
-		},
-		Metadata: metadata,
-	}, 200, w, r)
-}
-
 func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
-	timestamps, err := parseTimeParams(r.Request.URL.Query().Get("start"), r.Request.URL.Query().Get("end"))
+	timestamps, err := parseTimeParams(r.Request.URL.Query().Get("end"))
 
 	if err != nil {
 		router.HandleError("unable to parse start or end time", 400, w, r)
 		return
 	}
 
-	start := timestamps[0]
-	end := timestamps[1]
-
-	if end.IsZero() && start.IsZero() {
-		current := time.Now().UTC()
-		end = time.Date(current.Year(), current.Month(), current.Day(), current.Hour(), 0, 0, 0, time.UTC)
-		start = end.AddDate(0, -12, 0)
-	} else if end.IsZero() {
-		end = start.AddDate(0, 12, 0)
-	} else if start.IsZero() {
-		start = end.AddDate(0, -12, 0)
+	date := timestamps[0]
+	if date.IsZero() {
+		date = time.Now().UTC()
 	}
 
-	end = time.Date(end.Year(), end.Month()+4, 1, end.Hour(), 0, 0, 0, time.UTC)
-	end = end.AddDate(0, 0, -1)
-	start = time.Date(start.Year(), start.Month(), 1, start.Hour(), 0, 0, 0, time.UTC)
+	date = date.Truncate(time.Hour)
+	start := time.Date(date.Year(), date.Month(), 1, date.Hour(), 0, 0, 0, time.UTC).
+		AddDate(-1, 0, 0)
+	end := start.AddDate(1, 4, -1)
+
+	log.Println(start, end)
 
 	if end.Before(start) {
 		router.HandleError("end must be after start", 400, w, r)
@@ -164,58 +86,17 @@ func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
 	start = time.Date(start.Year(), start.Month(), start.Day(), start.Hour(), 0, 0, 0, time.UTC)
 	end = time.Date(end.Year(), end.Month(), end.Day(), end.Hour(), 0, 0, 0, time.UTC)
 
-	snapshotDays := make(map[int64]types.HostSnapshot)
-
-	// fill the time series with all possible values even if no data was stored
-	for d := start; d.Before(end); d = d.AddDate(0, 0, 1) {
-		snapshotDays[d.Unix()] = types.HostSnapshot{
-			Timestamp: d,
-		}
-	}
-
-	hostSnapshots, err := persist.GetHostSnapshots(start, end)
+	snapshots, err := persist.GetDailySnapshots(start, end)
 
 	if err != nil {
-		router.HandleError("unable to retrieve snapshots", 400, w, r)
-		log.Println(err)
+		router.HandleError("unable to get snapshots", 400, w, r)
 		return
 	}
-
-	for _, hourSnap := range hostSnapshots {
-		timestamp := hourSnap.Timestamp.UTC()
-		timestamp = time.Date(timestamp.Year(), timestamp.Month(), timestamp.Day(), start.Hour(), 0, 0, 0, time.UTC)
-
-		daySnap := snapshotDays[timestamp.Unix()]
-
-		daySnap.Timestamp = timestamp
-		daySnap.ActiveContracts += hourSnap.ActiveContracts
-		daySnap.NewContracts += hourSnap.NewContracts
-		daySnap.ExpiredContracts += hourSnap.ExpiredContracts
-		daySnap.SuccessfulContracts += hourSnap.SuccessfulContracts
-		daySnap.FailedContracts += hourSnap.FailedContracts
-
-		daySnap.Payout = daySnap.Payout.Add(hourSnap.Payout)
-		daySnap.EarnedRevenue = daySnap.EarnedRevenue.Add(hourSnap.EarnedRevenue)
-		daySnap.PotentialRevenue = daySnap.PotentialRevenue.Add(hourSnap.PotentialRevenue)
-		daySnap.BurntCollateral = daySnap.BurntCollateral.Add(hourSnap.BurntCollateral)
-
-		snapshotDays[timestamp.Unix()] = daySnap
-	}
-
-	snapshots := make([]types.HostSnapshot, 0, len(snapshotDays))
-
-	for _, snapshot := range snapshotDays {
-		snapshots = append(snapshots, snapshot)
-	}
-
-	sort.Slice(snapshots, func(i, j int) bool {
-		return snapshots[i].Timestamp.Before(snapshots[j].Timestamp)
-	})
 
 	router.SendJSONResponse(hostSnapshotResponse{
 		hostResponse: hostResponse{
 			APIResponse: router.APIResponse{
-				Message: "",
+				Message: "successfully retrieved snapshots",
 				Type:    "success",
 			},
 			Start: start,
@@ -228,7 +109,7 @@ func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
 func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 	var start, end time.Time
 
-	current := time.Now()
+	current := time.Now().Truncate(time.Hour).UTC()
 	timestamps, err := parseTimeParams(r.Request.URL.Query().Get("date"))
 
 	if err != nil {
@@ -236,17 +117,19 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 		return
 	}
 
+	log.Println(timestamps)
+
 	date := timestamps[0]
 
 	if date.IsZero() {
-		date = time.Date(current.Year(), current.Month(), 1, 0, 0, 0, 0, time.UTC)
+		date = current
 	}
 
-	date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
-	start = time.Date(date.Year(), 1, 1, 0, 0, 0, 0, time.UTC)
-	end = start.AddDate(1, 0, -1)
+	date = date.Truncate(time.Hour).UTC()
+	start = time.Date(date.Year(), 1, 1, date.Hour(), 0, 0, 0, time.UTC)
+	end = start.AddDate(1, 0, 0)
 
-	dailySnapshots, err := persist.GetHostSnapshots(start, end)
+	dailySnapshots, err := persist.GetDailySnapshots(start, end)
 	if err != nil {
 		router.HandleError("unable to retrieve snapshots", 400, w, r)
 		log.Println(err)
@@ -263,7 +146,7 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 	resp := hostTotalResponse{
 		hostResponse: hostResponse{
 			APIResponse: router.APIResponse{
-				Message: "",
+				Message: "successfully retrieved totals",
 				Type:    "success",
 			},
 			Start: start,
@@ -290,23 +173,13 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 		},
 	}
 
-	dy, dm, dd := date.Date()
+	dy, dm, _ := date.Date()
 
 	for _, snapshot := range dailySnapshots {
-		sy, sm, sd := snapshot.Timestamp.Date()
+		sy, sm, _ := snapshot.Timestamp.Date()
 
-		if sy == dy && sm == dm && sd == dd {
-			resp.Day.ActiveContracts = snapshot.ActiveContracts
-			resp.Day.ExpiredContracts = snapshot.ExpiredContracts
-
-			resp.Day.NewContracts += snapshot.NewContracts
-			resp.Day.SuccessfulContracts += snapshot.SuccessfulContracts
-			resp.Day.FailedContracts += snapshot.FailedContracts
-
-			resp.Day.Payout = resp.Day.Payout.Add(snapshot.Payout)
-			resp.Day.EarnedRevenue = resp.Day.EarnedRevenue.Add(snapshot.EarnedRevenue)
-			resp.Day.PotentialRevenue = resp.Day.PotentialRevenue.Add(snapshot.PotentialRevenue)
-			resp.Day.BurntCollateral = resp.Day.BurntCollateral.Add(snapshot.BurntCollateral)
+		if snapshot.Timestamp.Equal(date) {
+			resp.Day = snapshot
 		}
 
 		if sy == dy && sm == dm {

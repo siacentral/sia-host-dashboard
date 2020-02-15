@@ -18,7 +18,7 @@ func InitializeDB(dataPath string) error {
 			return fmt.Errorf("stat datapath: %s", err)
 		}
 
-		if err := os.MkdirAll(dataPath, 0700); err != nil {
+		if err := os.MkdirAll(dataPath, 0770); err != nil {
 			return fmt.Errorf("create directory: %s", err)
 		}
 	}

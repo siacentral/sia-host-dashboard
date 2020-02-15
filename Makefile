@@ -29,7 +29,7 @@ pack:
 
 run: install-dependencies lint-web lint-daemon pack
 	cd daemon && \
-	go run main.go
+	go run main.go --data-path $(PWD)/data
 
 build: install-dependencies lint-web lint-daemon pack build
 	./release.sh $(GOHOSTOS) $(GOHOSTARCH)

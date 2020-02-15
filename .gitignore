@@ -9,8 +9,9 @@ dist
 # Log files
 *.log
 
-# DB files
+# Databases and debugging
 *.db
+/data
 
 # Static assets
 daemon/assets/*

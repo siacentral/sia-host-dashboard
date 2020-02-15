@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -81,8 +82,16 @@ func Start(siaAddr string) error {
 		UserAgent: "Sia-Agent",
 	}
 
-	if _, err := apiClient.ConsensusGet(); err != nil {
-		return err
+	if err := syncContracts(); err != nil {
+		return fmt.Errorf("syncing contracts: %s", err)
+	}
+
+	if err := syncHostConnectivity(); err != nil {
+		return fmt.Errorf("syncing connectivity: %s", err)
+	}
+
+	if err := syncHostStatus(); err != nil {
+		return fmt.Errorf("syncing status: %s", err)
 	}
 
 	go refreshContracts()

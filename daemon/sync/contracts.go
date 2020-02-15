@@ -35,6 +35,10 @@ func syncContracts() error {
 		return err
 	}
 
+	if len(contracts) == 0 {
+		return nil
+	}
+
 	go syncHostMeta(contracts)
 	go syncHostSnapshots(contracts)
 
@@ -54,6 +58,10 @@ func getContracts() ([]mergedContract, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf("get sia contracts: %s", err)
+	}
+
+	if len(siaContracts.Contracts) == 0 {
+		return []mergedContract{}, nil
 	}
 
 	contractIDs := []string{}

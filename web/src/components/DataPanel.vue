@@ -12,8 +12,8 @@
 			<div class="point-value point-secondary" v-html="potentialRevenueCurrency" />
 		</div>
 		<div class="data-point">
-			<div class="point-title">New Contracts</div>
-			<div class="point-value" v-html="newContractsStr" />
+			<div class="point-title">{{ contractLabel }}</div>
+			<div class="point-value" v-html="contractsStr" />
 		</div>
 		<div class="data-point">
 			<div class="point-title">Successful Contracts</div>
@@ -32,7 +32,8 @@ export default {
 		title: String,
 		earnedRevenue: String,
 		potentialRevenue: String,
-		newContracts: Number,
+		contractLabel: String,
+		contracts: Number,
 		successfulContracts: Number
 	},
 	computed: {
@@ -77,8 +78,8 @@ export default {
 
 			return `${format.value} <span class="currency-display">${format.label}</span>`;
 		},
-		newContractsStr() {
-			let val = new BigNumber(this.newContracts);
+		contractsStr() {
+			let val = new BigNumber(this.contracts);
 
 			if (!val.isFinite() || val.isNaN())
 				val = new BigNumber(0);

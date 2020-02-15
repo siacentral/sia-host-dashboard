@@ -4,25 +4,29 @@
 		:title="dayStr"
 		:earnedRevenue="day.earned_revenue"
 		:potentialRevenue="day.potential_revenue"
-		:newContracts="day.new_contracts"
+		:contracts="day.new_contracts"
+		contractLabel="New Contracts"
 		:successfulContracts="day.successful_contracts" />
 	<data-panel
 		:title="monthStr"
 		:earnedRevenue="month.earned_revenue"
 		:potentialRevenue="month.potential_revenue"
-		:newContracts="month.new_contracts"
+		:contracts="month.new_contracts"
+		contractLabel="New Contracts"
 		:successfulContracts="month.successful_contracts" />
 	<data-panel
 		:title="yearStr"
 		:earnedRevenue="year.earned_revenue"
 		:potentialRevenue="year.potential_revenue"
-		:newContracts="year.new_contracts"
+		:contracts="year.new_contracts"
+		contractLabel="New Contracts"
 		:successfulContracts="year.successful_contracts" />
 	<data-panel
 		title="Total"
 		:earnedRevenue="total.earned_revenue"
 		:potentialRevenue="total.potential_revenue"
-		:newContracts="total.new_contracts"
+		:contracts="total.active_contracts"
+		contractLabel="Active Contracts"
 		:successfulContracts="total.successful_contracts" />
 </div>
 </template>

@@ -58,6 +58,10 @@ github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd h1:ug7PpSOB5RBPK1K
 github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd/go.mod h1:TrYk7fJVaAttu97ZZKrO9UbRa8izdowaMIZcxYMbVaw=
 github.com/siacentral/apisdkgo v0.0.0-20200122074828-ddfcf3b4bd27 h1:ZjWvBkztt1FmGS0479PE4QbXfGYIoZeBod3gLEWfp1Q=
 github.com/siacentral/apisdkgo v0.0.0-20200122074828-ddfcf3b4bd27/go.mod h1:E40Zwh4GNrYurMpjSEwAJduAl8pxSjx4jPYmU4rc3FM=
+github.com/siacentral/apisdkgo v0.0.0-20200215034821-fd67cc279fd8 h1:K0vYA7Ams/MOQSEo2utv2P/fpln2Y38xF/FV1Q51eAI=
+github.com/siacentral/apisdkgo v0.0.0-20200215034821-fd67cc279fd8/go.mod h1:E40Zwh4GNrYurMpjSEwAJduAl8pxSjx4jPYmU4rc3FM=
+github.com/siacentral/apisdkgo v0.0.0-20200215035357-6ff67ec130e3 h1:cOPylPwP1RK6FQM5vb4wXX6xDdMPZs36GX6jyXIQwJs=
+github.com/siacentral/apisdkgo v0.0.0-20200215035357-6ff67ec130e3/go.mod h1:E40Zwh4GNrYurMpjSEwAJduAl8pxSjx4jPYmU4rc3FM=
 github.com/spf13/afero v1.1.2/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B0CQ=
 github.com/spf13/cast v1.3.0/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
 github.com/spf13/cobra v0.0.4/go.mod h1:3K3wKZymM7VvHMDS9+Akkh4K60UwM26emMESw8tLCHU=

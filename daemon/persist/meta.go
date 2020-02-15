@@ -76,6 +76,10 @@ func GetLastMetadata() (metadata types.HostMeta, err error) {
 	err = db.View(func(tx *bolt.Tx) error {
 		_, buf := tx.Bucket(bucketHostMeta).Cursor().Last()
 
+		if buf == nil {
+			return nil
+		}
+
 		if err := json.Unmarshal(buf, &metadata); err != nil {
 			return err
 		}

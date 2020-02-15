@@ -12,6 +12,9 @@ dist
 # DB files
 *.db
 
+# Static assets
+daemon/assets/*
+
 # Releases
 releases
 

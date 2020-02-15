@@ -39,8 +39,8 @@ func syncContracts() error {
 		return nil
 	}
 
-	go syncHostMeta(contracts)
-	go syncHostSnapshots(contracts)
+	syncHostMeta(contracts)
+	syncHostSnapshots(contracts)
 
 	return nil
 }
@@ -96,17 +96,17 @@ func getContracts() ([]mergedContract, error) {
 }
 
 func syncHostSnapshots(contracts []mergedContract) {
-	snapshots := make(map[uint64]types.HostSnapshot)
+	snapshotMap := make(map[uint64]types.HostSnapshot)
 
 	for _, contract := range contracts {
 		endTimestamp := snapshotTime(contract.ProofDeadlineTimestamp)
 
 		for current := snapshotTime(contract.NegotiationTimestamp); current.Before(endTimestamp); current = current.Add(time.Hour) {
 			activeID := snapshotID(current)
-			snapshot := snapshots[activeID]
+			snapshot := snapshotMap[activeID]
 			snapshot.ActiveContracts++
 			snapshot.Timestamp = time.Unix(int64(activeID), 0)
-			snapshots[activeID] = snapshot
+			snapshotMap[activeID] = snapshot
 		}
 
 		switch contract.Status {
@@ -122,7 +122,7 @@ func syncHostSnapshots(contracts []mergedContract) {
 				payout = contract.MissedProofOutputs[1].Value
 			}
 
-			snapshot := snapshots[successfulID]
+			snapshot := snapshotMap[successfulID]
 			snapshot.Timestamp = time.Unix(int64(successfulID), 0)
 			snapshot.SuccessfulContracts++
 
@@ -130,11 +130,11 @@ func syncHostSnapshots(contracts []mergedContract) {
 				SubCurrency(contract.LockedCollateral).
 				SubCurrency(contract.TransactionFeesAdded)
 
-			snapshots[successfulID] = snapshot
+			snapshotMap[successfulID] = snapshot
 			break
 		case "obligationFailed":
 			failedID := snapshotID(contract.ProofDeadlineTimestamp)
-			snapshot := snapshots[failedID]
+			snapshot := snapshotMap[failedID]
 
 			snapshot.FailedContracts++
 			snapshot.EarnedRevenue = snapshot.EarnedRevenue.
@@ -143,31 +143,35 @@ func syncHostSnapshots(contracts []mergedContract) {
 				Add(contract.LockedCollateral)
 			snapshot.Timestamp = time.Unix(int64(failedID), 0)
 
-			snapshots[failedID] = snapshot
+			snapshotMap[failedID] = snapshot
 			break
 		case "obligationUnresolved":
 			expirationID := snapshotID(contract.ExpirationTimestamp)
-			snapshot := snapshots[expirationID]
+			snapshot := snapshotMap[expirationID]
 			snapshot.PotentialRevenue = snapshot.PotentialRevenue.Add(contract.PotentialRevenue)
 			snapshot.ExpiredContracts++
 			snapshot.ActiveContracts--
 			snapshot.Timestamp = time.Unix(int64(expirationID), 0)
-			snapshots[expirationID] = snapshot
+			snapshotMap[expirationID] = snapshot
 
 			break
 		}
 
 		formationID := snapshotID(contract.NegotiationTimestamp)
-		formationSnapshot := snapshots[formationID]
+		formationSnapshot := snapshotMap[formationID]
 
 		formationSnapshot.NewContracts++
 		formationSnapshot.Timestamp = time.Unix(int64(formationID), 0)
-		snapshots[formationID] = formationSnapshot
+		snapshotMap[formationID] = formationSnapshot
 	}
 
-	for _, snapshot := range snapshots {
-		if err := persist.SaveHostSnapshot(snapshot); err != nil {
-			log.Printf("sync error: save snapshot: %s", err)
-		}
+	snapshots := []types.HostSnapshot{}
+
+	for _, snapshot := range snapshotMap {
+		snapshots = append(snapshots, snapshot)
+	}
+
+	if err := persist.SaveHostSnapshots(snapshots...); err != nil {
+		log.Printf("sync error: save snapshotMap: %s", err)
 	}
 }

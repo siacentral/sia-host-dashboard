@@ -11,20 +11,21 @@ import (
 	"gitlab.com/NebulousLabs/bolt"
 )
 
-//SaveHostSnapshot SaveHostSnapshot
-func SaveHostSnapshot(snapshot types.HostSnapshot) error {
-	snapshot.Timestamp = snapshot.Timestamp.Truncate(time.Hour).UTC()
-
+//SaveHostSnapshots SaveHostSnapshot
+func SaveHostSnapshots(snapshots ...types.HostSnapshot) error {
 	return db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketHostSnapshots)
 
-		buf, err := json.Marshal(snapshot)
+		for _, snapshot := range snapshots {
+			snapshot.Timestamp = snapshot.Timestamp.Truncate(time.Hour).UTC()
+			buf, err := json.Marshal(snapshot)
 
-		if err != nil {
-			return fmt.Errorf("json encode: %s", err)
+			if err != nil {
+				return fmt.Errorf("json encode: %s", err)
+			}
+
+			bucket.Put(timeID(snapshot.Timestamp), buf)
 		}
-
-		bucket.Put(timeID(snapshot.Timestamp), buf)
 
 		return nil
 	})

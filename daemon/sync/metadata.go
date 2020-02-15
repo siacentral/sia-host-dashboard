@@ -12,7 +12,7 @@ import (
 	siatypes "gitlab.com/NebulousLabs/Sia/types"
 )
 
-func getHostContracts(contracts []mergedContract, meta *types.HostMeta) {
+func calcHostContracts(contracts []mergedContract, meta *types.HostMeta) {
 	for _, contract := range contracts {
 		switch contract.Status {
 		case "obligationSucceeded":
@@ -63,7 +63,7 @@ func getFirstSeen(pubkey string, meta *types.HostMeta) error {
 func syncHostMeta(contracts []mergedContract) {
 	var meta types.HostMeta
 
-	getHostContracts(contracts, &meta)
+	calcHostContracts(contracts, &meta)
 
 	host, err := apiClient.HostGet()
 

@@ -85,8 +85,12 @@ func syncHostMeta(contracts []mergedContract) {
 		return
 	}
 
-	meta.UsedStorage = meta.UsedStorage.Add(siatypes.NewCurrency64(host.ExternalSettings.TotalStorage - host.ExternalSettings.RemainingStorage))
-	meta.TotalStorage = meta.TotalStorage.Add(siatypes.NewCurrency64(host.ExternalSettings.TotalStorage))
+	up, down := getBandwidthUsage()
+
+	meta.UploadBandwidth = up
+	meta.DownloadBandwidth = down
+	meta.UsedStorage = host.ExternalSettings.TotalStorage - host.ExternalSettings.RemainingStorage
+	meta.TotalStorage = host.ExternalSettings.TotalStorage
 	meta.Settings.BaseRPCPrice = host.ExternalSettings.BaseRPCPrice
 	meta.Settings.Collateral = host.ExternalSettings.Collateral
 	meta.Settings.MaxCollateral = host.ExternalSettings.MaxCollateral

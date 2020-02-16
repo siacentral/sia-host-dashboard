@@ -79,6 +79,8 @@ gitlab.com/NebulousLabs/Sia v1.4.2-0.20191220232351-91e83488aaa4 h1:Ci+R+nM1t3mT
 gitlab.com/NebulousLabs/Sia v1.4.2-0.20191220232351-91e83488aaa4/go.mod h1:NTdDyhc2NYxjUr2k/QH3HSVFKzlGW2135jl9KYWtncI=
 gitlab.com/NebulousLabs/Sia v1.4.3-0.20200211171057-5499cabe2255 h1:zYA3bhoLlzjDJkqVO072WZby50ZkOgvYZPH5O8+Yfts=
 gitlab.com/NebulousLabs/Sia v1.4.3-0.20200211171057-5499cabe2255/go.mod h1:kMsDyHZQEFkfIJ2e+JPmYpxMiO5pMVr2aEAggxwxrBQ=
+gitlab.com/NebulousLabs/Sia v1.4.3-0.20200214160438-b91139c5d9ef h1:VSm8bBBV8/LFOYsMOMmMLDKj8xuFn8gp+mCvl5X6c0w=
+gitlab.com/NebulousLabs/Sia v1.4.3-0.20200214160438-b91139c5d9ef/go.mod h1:kMsDyHZQEFkfIJ2e+JPmYpxMiO5pMVr2aEAggxwxrBQ=
 gitlab.com/NebulousLabs/bolt v1.4.0 h1:6sfFp1YQtGWbSLLYoH8+0h3EtFRGbsp07L3uZNChdE0=
 gitlab.com/NebulousLabs/bolt v1.4.0/go.mod h1:72gB2R0hTcUU2Ih7mBpHF0jJlIldSyPzG1cuwz1uYJY=
 gitlab.com/NebulousLabs/demotemutex v0.0.0-20151003192217-235395f71c40/go.mod h1:HfnnxM8isYA7FUlqS5h34XTeiBhPtcuCquVujKsn9aw=

@@ -26,9 +26,14 @@ func handleGetHostStatus(w http.ResponseWriter, r *router.APIRequest) {
 	}
 
 	status := cache.GetHostStatus()
-	settings := status.Settings
-	status.HostMeta = meta
-	status.Settings = settings
+	status.ActiveContracts = meta.ActiveContracts
+	status.SuccessfulContracts = meta.SuccessfulContracts
+	status.FailedContracts = meta.FailedContracts
+	status.Payout = meta.Payout
+	status.EarnedRevenue = meta.EarnedRevenue
+	status.PotentialRevenue = meta.PotentialRevenue
+	status.BurntCollateral = meta.BurntCollateral
+	status.FirstSeen = meta.FirstSeen
 
 	router.SendJSONResponse(hostStatusResponse{
 		APIResponse: router.APIResponse{

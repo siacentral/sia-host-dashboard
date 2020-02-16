@@ -2,7 +2,6 @@ package sync
 
 import (
 	"fmt"
-	"math/big"
 
 	siacentralapi "github.com/siacentral/apisdkgo"
 	"github.com/siacentral/host-dashboard/daemon/cache"
@@ -10,8 +9,8 @@ import (
 	siatypes "gitlab.com/NebulousLabs/Sia/types"
 )
 
-func calcPercentage(a, b siatypes.Currency) uint64 {
-	if a.Cmp(b) == 0 {
+func calcPercentage(a, b siatypes.Currency) (v uint8) {
+	if a.Cmp(b) != -1 {
 		return 100
 	}
 
@@ -19,13 +18,22 @@ func calcPercentage(a, b siatypes.Currency) uint64 {
 		b = siatypes.NewCurrency64(1)
 	}
 
-	r := new(big.Rat).SetFrac(a.Big(), b.Big())
+	p := a.Mul64(100).Div(b)
+	n, _ := p.Uint64()
 
-	r.Mul(r, new(big.Rat).SetUint64(100))
+	return uint8(n)
+}
 
-	v, _ := r.Float64()
+func calcPercentage64(a, b uint64) uint8 {
+	if a == b || a < b {
+		return 100
+	}
 
-	return uint64(v)
+	if b == 0 {
+		b = 1
+	}
+
+	return uint8((a * 100) / b)
 }
 
 func syncStorageStatus(status *types.HostStatus) error {
@@ -64,12 +72,12 @@ func syncStorageStatus(status *types.HostStatus) error {
 		}
 	}
 
-	status.UsedStorage = siatypes.NewCurrency64(usedStorage)
-	status.TotalStorage = siatypes.NewCurrency64(totalStorage)
+	status.UsedStorage = usedStorage
+	status.TotalStorage = totalStorage
 
-	usagePerc := calcPercentage(status.UsedStorage, status.TotalStorage)
+	usagePerc := calcPercentage64(status.UsedStorage, status.TotalStorage)
 
-	if status.TotalStorage.Cmp64(0) != 1 {
+	if status.TotalStorage <= 0 {
 		cache.AddAlert(AlertStorageUtilization, types.HostAlert{
 			Severity: "severe",
 			Text:     "No storage added, add storage folders to accept contracts.",
@@ -165,9 +173,13 @@ func syncHostStatus() error {
 		return fmt.Errorf("get storage folders: %s", err)
 	}
 
+	up, down := getBandwidthUsage()
+
 	status.AcceptingContracts = host.InternalSettings.AcceptingContracts
 	status.Version = host.ExternalSettings.Version
 	status.WalletUnlocked = wallet.Unlocked
+	status.UploadBandwidth = up
+	status.DownloadBandwidth = down
 
 	status.Settings.BaseRPCPrice = host.ExternalSettings.BaseRPCPrice
 	status.Settings.SectorAccessPrice = host.ExternalSettings.SectorAccessPrice

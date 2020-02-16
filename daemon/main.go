@@ -75,7 +75,7 @@ func openbrowser(url string) {
 	}
 
 	if err != nil {
-		log.Printf("Warn: unable to open browser: %s", err)
+		log.Printf("warn: unable to open browser: %s", err)
 	}
 }
 
@@ -106,7 +106,7 @@ func main() {
 
 	log.Printf("Host Dashboard Ready at: http://localhost:%d", 8884)
 
-	openbrowser("http://localhost:8884")
+	//openbrowser("http://localhost:8884")
 
 	sigChan := make(chan os.Signal, 1)
 

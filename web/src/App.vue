@@ -60,6 +60,12 @@ export default {
 			return formatDate(this.currentDate);
 		}
 	},
+	beforeMount() {
+		const d = new Date();
+
+		d.setHours(23, 59, 59, 999);
+		this.currentDate = d;
+	},
 	async mounted() {
 		try {
 			await Promise.all([

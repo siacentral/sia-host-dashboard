@@ -107,15 +107,13 @@ func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
 func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 	var start, end time.Time
 
-	current := time.Now().Truncate(time.Hour).UTC()
+	current := time.Now()
 	timestamps, err := parseTimeParams(r.Request.URL.Query().Get("date"))
 
 	if err != nil {
 		router.HandleError("unable to parse unix timestamp", 400, w, r)
 		return
 	}
-
-	log.Println(timestamps)
 
 	date := timestamps[0]
 
@@ -180,10 +178,19 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 			resp.Day = snapshot
 		}
 
-		if sy == dy && sm == dm {
-			resp.Month.ActiveContracts = snapshot.ActiveContracts
-			resp.Month.ExpiredContracts = snapshot.ExpiredContracts
+		if snapshot.Timestamp.Before(current) {
+			if sy == dy && sm == dm {
+				resp.Month.ActiveContracts = snapshot.ActiveContracts
+				resp.Month.ExpiredContracts += snapshot.ExpiredContracts
+			}
 
+			if sy == dy {
+				resp.Year.ActiveContracts = snapshot.ActiveContracts
+				resp.Year.ExpiredContracts += snapshot.ExpiredContracts
+			}
+		}
+
+		if sy == dy && sm == dm {
 			resp.Month.NewContracts += snapshot.NewContracts
 			resp.Month.SuccessfulContracts += snapshot.SuccessfulContracts
 			resp.Month.FailedContracts += snapshot.FailedContracts
@@ -195,9 +202,6 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 		}
 
 		if sy == dy {
-			resp.Year.ActiveContracts += snapshot.ActiveContracts
-			resp.Year.ExpiredContracts += snapshot.ExpiredContracts
-
 			resp.Year.NewContracts += snapshot.NewContracts
 			resp.Year.SuccessfulContracts += snapshot.SuccessfulContracts
 			resp.Year.FailedContracts += snapshot.FailedContracts

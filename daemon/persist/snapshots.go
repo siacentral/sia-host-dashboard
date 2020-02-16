@@ -75,23 +75,22 @@ func GetDailySnapshots(start, end time.Time) (snapshots []types.HostSnapshot, er
 		Timestamp: start,
 	})
 
+	end = end.AddDate(0, 0, -1)
+
 	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(bucketHostSnapshots)
-		next := start.AddDate(0, 0, 1)
 
-		for current := start; current.Before(end); current = current.Add(time.Hour) {
+		for current := start.AddDate(0, 0, -1); current.Before(end); current = current.Add(time.Hour) {
 			var snapshot types.HostSnapshot
 
 			id := timeID(current)
 			i := len(snapshots) - 1
 			buf := b.Get(id)
 
-			if current.After(next) {
+			if current.Equal(snapshots[i].Timestamp) {
 				snapshots = append(snapshots, types.HostSnapshot{
-					Timestamp: next,
+					Timestamp: snapshots[i].Timestamp.AddDate(0, 0, 1),
 				})
-				next = next.AddDate(0, 0, 1)
-				i++
 			}
 
 			if buf == nil {

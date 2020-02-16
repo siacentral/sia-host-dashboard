@@ -2,7 +2,7 @@
 	<div id="app">
 		<div id="dashboard-wrapper">
 			<div id="dashboard">
-				<host-pricing :settings="settings" />
+				<host-stats :settings="settings" :status="status" />
 				<div class="date-range">
 					<button class="date-range-next" @click="onSetDate(-1)"><icon icon="chevron-left" /></button>
 					<div>{{ dateStr }}</div>
@@ -32,7 +32,7 @@ import { formatDate } from '@/utils/format';
 
 import DashboardCharts from '@/components/charts/DashboardCharts';
 import DashboardData from '@/components/DashboardData';
-import HostPricing from '@/components/HostPricing';
+import HostStats from '@/components/HostStats';
 import SiaCentral from '@/assets/siacentral.svg';
 import BuiltWithSia from '@/assets/built-with-sia.svg';
 
@@ -41,7 +41,7 @@ export default {
 		BuiltWithSia,
 		DashboardCharts,
 		DashboardData,
-		HostPricing,
+		HostStats,
 		SiaCentral
 	},
 	data() {
@@ -50,6 +50,7 @@ export default {
 			currentDate: new Date(),
 			totals: {},
 			settings: {},
+			status: {},
 			snapshots: [],
 			averageSettings: {}
 		};
@@ -90,6 +91,7 @@ export default {
 			return Promise.all([
 				getStatus()
 					.then(status => {
+						this.status = status.status;
 						this.settings = status.status.host_settings;
 					}),
 				getSnapshots(this.currentDate)

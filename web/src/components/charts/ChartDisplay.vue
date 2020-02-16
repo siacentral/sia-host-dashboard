@@ -88,7 +88,7 @@ export default {
 
 	.chart-label-left, .chart-label-right {
 		position: absolute;
-		bottom: 10px;
+		bottom: 5px;
 		font-size: 0.8rem;
 		color: rgba(255, 255, 255, 0.84);
 		z-index: 2;

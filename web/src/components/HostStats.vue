@@ -228,12 +228,12 @@ export default {
 
 .data-points {
 	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	grid-gap: 15px;
+	justify-items: center;
 
 	@media screen and (min-width: 600px) {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-			justify-items: center;
-			grid-gap: 30px;
+		grid-gap: 30px;
 	}
 
 	@media screen and (min-width: 850px) {
@@ -248,6 +248,10 @@ export default {
 
 	.data-value {
 		font-size: 1.5rem;
+	}
+
+	.data-points {
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	@media screen and (min-width: 850px) {

@@ -100,7 +100,10 @@ export default {
 
 <style lang="stylus" scoped>
 .data-panel {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	padding: 15px;
+	grid-gap: 15px;
 }
 
 .data-title, .point-title, .point-value {
@@ -109,16 +112,8 @@ export default {
 	text-overflow: ellipsis;
 }
 
-.data-point {
-	margin-bottom: 15px;
-
-	&:last-of-type {
-		margin-bottom: 0;
-	}
-}
-
 .data-title {
-	margin-bottom: 15px;
+	grid-column: 1 / -1;
 	text-align: center;
 	color: rgba(255, 255, 255, 0.84);
 }

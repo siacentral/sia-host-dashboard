@@ -40,14 +40,6 @@ Changes the address and port of the Sia API the dashboard accesses
 dashboard --sia-addr localhost:9980
 ```
 
-#### `--allow-cors`
-Opens the API to allow cross origin resource requests in the browser. This could allow API
-access to other frontends. Should not be used unless necessary
-
-```
-dashboard --allow-cors
-```
-
 ## Docker
 The dashboard needs access to a running Sia node. To run the dashboard in a docker container
 requires using host networking for Sia and Dashboard or creating a separate docker network so containers can be accessed by name.

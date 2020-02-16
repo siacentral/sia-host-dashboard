@@ -53,7 +53,7 @@ func snapshotTime(timestamp time.Time) time.Time {
 	return timestamp.UTC().Truncate(time.Hour)
 }
 
-func getContracts() ([]mergedContract, error) {
+func getContracts() (contracts []mergedContract, err error) {
 	siaContracts, err := apiClient.HostContractInfoGet()
 
 	if err != nil {
@@ -64,35 +64,42 @@ func getContracts() ([]mergedContract, error) {
 		return []mergedContract{}, nil
 	}
 
-	contractIDs := []string{}
+	count := len(siaContracts.Contracts)
 	contractMap := make(map[string]modules.StorageObligation)
 
-	for _, contract := range siaContracts.Contracts {
-		contractIDs = append(contractIDs, contract.ObligationId.String())
-		contractMap[contract.ObligationId.String()] = contract
+	for i := 0; i < count; i += 1000 {
+		var contractIDs []string
+		end := i + 1000
+
+		if end > count {
+			end = count
+		}
+
+		for _, contract := range siaContracts.Contracts[i:end] {
+			contractIDs = append(contractIDs, contract.ObligationId.String())
+			contractMap[contract.ObligationId.String()] = contract
+		}
+
+		chainContracts, err := siacentralapi.FindContractsByID(contractIDs...)
+
+		if err != nil {
+			return nil, fmt.Errorf("get chain contracts: %s", err)
+		}
+
+		for _, contract := range chainContracts {
+			siaContract := contractMap[contract.ID]
+
+			contracts = append(contracts, mergedContract{
+				StorageContract:      contract,
+				LockedCollateral:     siaContract.LockedCollateral,
+				TransactionFeesAdded: siaContract.TransactionFeesAdded,
+				PotentialRevenue: siaContract.ContractCost.Add(siaContract.PotentialStorageRevenue).
+					Add(siaContract.PotentialUploadRevenue).Add(siaContract.PotentialDownloadRevenue),
+			})
+		}
 	}
 
-	chainContracts, err := siacentralapi.FindContractsByID(contractIDs...)
-
-	if err != nil {
-		return nil, fmt.Errorf("get chain contracts: %s", err)
-	}
-
-	contracts := make([]mergedContract, 0, len(chainContracts))
-
-	for _, contract := range chainContracts {
-		siaContract := contractMap[contract.ID]
-
-		contracts = append(contracts, mergedContract{
-			StorageContract:      contract,
-			LockedCollateral:     siaContract.LockedCollateral,
-			TransactionFeesAdded: siaContract.TransactionFeesAdded,
-			PotentialRevenue: siaContract.ContractCost.Add(siaContract.PotentialStorageRevenue).
-				Add(siaContract.PotentialUploadRevenue).Add(siaContract.PotentialDownloadRevenue),
-		})
-	}
-
-	return contracts, nil
+	return
 }
 
 func syncHostSnapshots(contracts []mergedContract) {

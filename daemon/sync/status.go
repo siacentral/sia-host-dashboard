@@ -12,7 +12,7 @@ import (
 
 func calcPercentage(a, b siatypes.Currency) uint64 {
 	if a.Cmp(b) == 0 {
-		return 1
+		return 100
 	}
 
 	if b.Cmp64(0) != 1 {

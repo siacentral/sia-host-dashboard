@@ -164,6 +164,17 @@ func syncHostStatus() error {
 		return fmt.Errorf("get wallet: %s", err)
 	}
 
+	gbw, err := apiClient.GatewayBandwidthGet()
+
+	if err != nil {
+		cache.AddAlert(AlertSyncError, types.HostAlert{
+			Severity: "severe",
+			Text:     "Unable to sync host. Check your Sia connection.",
+			Type:     "sync",
+		})
+		return fmt.Errorf("get wallet: %s", err)
+	}
+
 	if err := syncStorageStatus(&status); err != nil {
 		cache.AddAlert(AlertSyncError, types.HostAlert{
 			Severity: "severe",
@@ -180,6 +191,7 @@ func syncHostStatus() error {
 	status.WalletUnlocked = wallet.Unlocked
 	status.UploadBandwidth = up
 	status.DownloadBandwidth = down
+	status.StartTime = gbw.StartTime
 
 	status.Settings.BaseRPCPrice = host.ExternalSettings.BaseRPCPrice
 	status.Settings.SectorAccessPrice = host.ExternalSettings.SectorAccessPrice

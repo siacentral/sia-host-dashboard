@@ -20,11 +20,11 @@ import (
 )
 
 var (
-	dataPath   string
-	listenAddr string
-	siaAddr    string
-	allowCORS  bool
-	logFile    *os.File
+	dataPath    string
+	listenAddr  string
+	siaAddr     string
+	disableCors bool
+	logFile     *os.File
 )
 
 func writeLine(format string, args ...interface{}) {
@@ -40,7 +40,7 @@ func init() {
 	flag.StringVar(&dataPath, "data-path", "data", "the data path to use")
 	flag.StringVar(&listenAddr, "listen-addr", ":8884", "the address to listen on, defaults to :8884")
 	flag.StringVar(&siaAddr, "sia-api-addr", "localhost:9980", "the url used to connect to Sia. Defaults to \"localhost:9980\"")
-	flag.BoolVar(&allowCORS, "allow-cors", false, "enables cross-origin requests, this should only be enabled for development or specific use cases")
+	flag.BoolVar(&disableCors, "disable-cors", false, "disables cross-origin requests, prevents cross-origin browser requests to the API")
 	flag.Parse()
 
 	if err := os.MkdirAll(dataPath, 0770); err != nil && !os.IsExist(err) {
@@ -83,7 +83,7 @@ func startAPI() {
 	if err := web.Start(router.APIOptions{
 		ListenAddress: listenAddr,
 		CORS: router.CORSOptions{
-			Enabled: allowCORS,
+			Enabled: !disableCors,
 			Origins: []string{"*"},
 			Methods: []string{"*"},
 		},

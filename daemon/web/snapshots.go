@@ -76,8 +76,6 @@ func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
 		AddDate(-1, 0, 0)
 	end := start.AddDate(1, 4, -1)
 
-	log.Println(start, end)
-
 	if end.Before(start) {
 		router.HandleError("end must be after start", 400, w, r)
 		return

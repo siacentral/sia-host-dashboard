@@ -11,6 +11,10 @@ import (
 )
 
 func calcPercentage(a, b siatypes.Currency) uint64 {
+	if a.Cmp(b) == 0 {
+		return 1
+	}
+
 	if b.Cmp64(0) != 1 {
 		b = siatypes.NewCurrency64(1)
 	}
@@ -65,7 +69,13 @@ func syncStorageStatus(status *types.HostStatus) error {
 
 	usagePerc := calcPercentage(status.UsedStorage, status.TotalStorage)
 
-	if usagePerc >= 98 {
+	if status.TotalStorage.Cmp64(0) != 1 {
+		cache.AddAlert(AlertStorageUtilization, types.HostAlert{
+			Severity: "severe",
+			Text:     "No storage added, add storage folders to accept contracts.",
+			Type:     "storage",
+		})
+	} else if usagePerc >= 98 {
 		cache.AddAlert(AlertStorageUtilization, types.HostAlert{
 			Severity: "severe",
 			Text:     "Storage almost full, add more storage to avoid low storage penalty.",

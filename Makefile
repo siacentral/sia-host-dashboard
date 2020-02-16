@@ -31,8 +31,11 @@ run: install-dependencies lint-web lint-daemon pack
 	cd daemon && \
 	go run main.go --data-path $(PWD)/data
 
-build: install-dependencies lint-web lint-daemon pack build
+build: install-dependencies lint-web lint-daemon pack
 	./release.sh $(GOHOSTOS) $(GOHOSTARCH)
 
-release: install-dependencies lint-web lint-daemon pack build
+release: install-dependencies lint-web lint-daemon pack
 	./release.sh
+
+docker:
+	docker build -t siacentral/host-dashboard .

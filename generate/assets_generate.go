@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	if err := os.MkdirAll("assets", 0770); err != nil && !os.IsExist(err) {
+	if err := os.MkdirAll("daemon/assets", 0770); err != nil && !os.IsExist(err) {
 		log.Fatalln(err)
 	}
 

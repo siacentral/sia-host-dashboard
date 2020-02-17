@@ -1,11 +1,9 @@
 set -e
 
-cd daemon
-
 build() {
 	os=$1
 	arch=$2
-	folder=../releases/dashboard-$os-$arch
+	folder=./releases/dashboard-$os-$arch
 	bin=dashboard
 
 	if [ "$os" == "windows" ]; then
@@ -16,7 +14,7 @@ build() {
 
 	rm -rf $folder
 	mkdir -p $folder
-	GOOS=${os} GOARCH=amd64 go build -a -trimpath -o $folder/$bin main.go
+	GOOS=${os} GOARCH=amd64 go build -a -trimpath -o $folder/$bin ./daemon/daemon.go
 }
 
 sys=( darwin linux windows )

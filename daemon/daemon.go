@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/inconshreveable/mousetrap"
+	"github.com/siacentral/host-dashboard/daemon/cmd"
 	"github.com/siacentral/host-dashboard/daemon/persist"
 	"github.com/siacentral/host-dashboard/daemon/sync"
 	"github.com/siacentral/host-dashboard/daemon/web"
@@ -106,16 +106,7 @@ func startAPI() {
 func main() {
 	var openAddr string
 
-	if mousetrap.StartedByExplorer() {
-		args := []string{"/K"}
-		args = append(args, os.Args...)
-		cmd := exec.Command("cmd", args...)
-		if err := cmd.Run(); err != nil {
-			log.Fatalln(err)
-		}
-
-		os.Exit(0)
-	}
+	cmd.StartedInExplorer()
 
 	writeLine("Starting Host Dashboard")
 
@@ -131,7 +122,7 @@ func main() {
 		openAddr = fmt.Sprintf("http://%s", listenAddr)
 	}
 
-	log.Printf("Host Dashboard Ready at: %s", openAddr)
+	writeLine("Host Dashboard Ready at: %s", openAddr)
 
 	openbrowser(openAddr)
 

@@ -15,7 +15,7 @@ func main() {
 	}
 
 	err := vfsgen.Generate(http.Dir(os.Args[1]), vfsgen.Options{
-		Filename:     "assets/assets.go",
+		Filename:     "daemon/assets/assets.go",
 		PackageName:  "assets",
 		VariableName: "Web",
 	})

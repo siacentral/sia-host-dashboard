@@ -14,19 +14,18 @@ RUN npm run build
 # build wasm
 FROM golang:1.13-alpine AS buildgo
 
-WORKDIR /daemon
+WORKDIR /app
 
-COPY ./daemon .
-COPY --from=buildnode /web/dist /daemon/dist
+COPY . .
+COPY --from=buildnode /web/dist ./dist
 
-RUN go get
-RUN go run generate/assets_generate.go /daemon/dist
-RUN go build -o ./release/dashboard main.go
+RUN go run generate/assets_generate.go ./dist
+RUN go build -o ./release/dashboard ./daemon/daemon.go
 
 # production
 FROM alpine:latest
 
-COPY --from=buildgo /daemon/release/dashboard /usr/bin/dashboard
+COPY --from=buildgo /app/release/dashboard /usr/bin/dashboard
 
 ENV SIA_API_ADDR="localhost:9980"
 

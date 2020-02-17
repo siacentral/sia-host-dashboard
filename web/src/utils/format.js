@@ -107,8 +107,8 @@ export function formatShortTimeString(date) {
 }
 
 export function formatDuration(sec, short) {
-	if (sec <= 0)
-		return '0 sec';
+	if (sec < 60)
+		return [{ value: 1, label: 'min' }];
 
 	let denoms;
 
@@ -117,25 +117,28 @@ export function formatDuration(sec, short) {
 	else
 		denoms = { 'day': 86400, 'hour': 3600, 'min': 60 };
 
-	const keys = Object.keys(denoms), len = keys.length;
+	const keys = Object.keys(denoms), len = keys.length, labels = [];
 
-	let time = sec, label, i = 1, d;
+	let time = sec, label, i = 0, d;
 
 	for (; i < len; i++) {
 		label = keys[i];
 		d = denoms[label];
 
-		if (time < d)
+		if (time < d && labels.length === 0)
 			continue;
 
 		const amt = Math.floor(time / d);
 
 		time = time % d;
 
-		return `${amt} ${amt > 1 && !short ? label + 's' : label}`;
+		labels.push({
+			value: amt,
+			label: amt > 1 && !short ? label + 's' : label
+		});
 	}
 
-	return `< 1 m`;
+	return labels;
 }
 
 export function formatByteString(val, unit, dec) {

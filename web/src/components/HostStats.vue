@@ -2,6 +2,12 @@
 	<div>
 		<div class="split">
 			<div class="panel">
+				<div class="title">Uptime</div>
+				<div class="uptime-counter">
+					<div v-html="uptimeStr" />
+				</div>
+			</div>
+			<div class="panel">
 				<div class="title">Storage Usage</div>
 				<div class="data-points">
 					<div class="data-panel">
@@ -58,7 +64,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { formatPriceString, formatDataPriceString, formatMonthlyPriceString, formatByteString } from '@/utils/format';
+import { formatPriceString, formatDataPriceString, formatMonthlyPriceString, formatByteString, formatDuration } from '@/utils/format';
 import BigNumber from 'bignumber.js';
 
 export default {
@@ -156,6 +162,16 @@ export default {
 
 			return val;
 		},
+		uptimeStr() {
+			let v = 0;
+
+			if (this.status && typeof this.status.start_time === 'string')
+				v = (Date.now() - new Date(this.status.start_time).getTime()) / 1000;
+
+			const format = formatDuration(v, true);
+
+			return format.map(f => `${f.value} <span class="currency-display">${f.label}</span>`).join(' ');
+		},
 		usedByteStr() {
 			const format = formatByteString(this.usedStorageBytes, 'decimal', 2);
 
@@ -223,7 +239,6 @@ export default {
 <style lang="stylus" scoped>
 .panel {
 	padding: 15px;
-	margin-bottom: 15px;
 }
 
 .data-points {
@@ -243,15 +258,15 @@ export default {
 
 .split {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
 	grid-gap: 15px;
+	margin-bottom: 15px;
 
 	.data-value {
 		font-size: 1.5rem;
 	}
 
-	.data-points {
-		grid-template-columns: minmax(0, 1fr);
+	@media screen and (min-width: 600px) {
+		grid-template-columns: auto repeat(2, minmax(0, 1fr));
 	}
 
 	@media screen and (min-width: 850px) {
@@ -261,6 +276,14 @@ export default {
 			grid-gap: 30px;
 		}
 	}
+}
+
+.uptime-counter {
+	display: grid;
+	font-size: 1.5rem;
+	color: primary;
+	align-content: center;
+	justify-content: center;
 }
 
 .title {

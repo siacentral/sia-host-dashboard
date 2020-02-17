@@ -132,7 +132,7 @@ export default {
 	methods: {
 		onSelectContracts(i) {
 			try {
-				this.selectedContracts = i;
+				this.active = i;
 			} catch (ex) {
 				console.error(ex);
 			}

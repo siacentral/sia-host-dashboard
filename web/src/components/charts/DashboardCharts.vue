@@ -24,7 +24,6 @@ export default {
 .charts {
 	display: grid;
 	grid-gap: 15px;
-	margin-bottom: 15px;
 }
 
 .charts {

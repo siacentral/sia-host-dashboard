@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="host-stats">
 		<div class="split">
 			<div class="panel">
 				<div class="title">Uptime</div>
@@ -237,6 +237,10 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.host-stats {
+	margin-bottom: 15px;
+}
+
 .panel {
 	padding: 15px;
 }

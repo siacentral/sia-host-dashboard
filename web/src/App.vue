@@ -4,12 +4,12 @@
 			<div id="dashboard">
 				<alert-list :alerts="alerts" />
 				<host-stats :settings="settings" :status="status" />
+				<dashboard-charts :snapshots="snapshots" />
 				<div class="date-range">
 					<button class="date-range-next" @click="onSetDate(-1)"><icon icon="chevron-left" /></button>
 					<div>{{ dateStr }}</div>
 					<button class="date-range-next" @click="onSetDate(1)"><icon icon="chevron-right" /></button>
 				</div>
-				<dashboard-charts :snapshots="snapshots" />
 				<dashboard-data
 					:month="totals.month || {}"
 					:year="totals.year || {}"

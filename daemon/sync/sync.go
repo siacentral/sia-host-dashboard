@@ -95,8 +95,20 @@ func getBandwidthUsage() (upload, download uint64) {
 	}
 
 	bandwidthMu.Lock()
-	upload = counters.totalUpload + (bw.Upload - counters.lastUpload)
-	download = counters.totalDownload + (bw.Download - counters.lastDownload)
+
+	dUp := bw.Upload
+	dDown := bw.Download
+
+	if dUp > counters.lastUpload {
+		dUp -= counters.lastUpload
+	}
+
+	if dDown > counters.lastDownload {
+		dDown -= counters.lastDownload
+	}
+
+	upload = counters.totalUpload + dUp
+	download = counters.totalDownload + dDown
 
 	counters.totalUpload = upload
 	counters.totalDownload = download

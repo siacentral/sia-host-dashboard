@@ -26,6 +26,7 @@ var (
 	listenAddr  string
 	siaAddr     string
 	disableCors bool
+	logStdOut   bool
 	logFile     *os.File
 )
 
@@ -43,6 +44,7 @@ func init() {
 	flag.StringVar(&listenAddr, "listen-addr", ":8884", "the address to listen on, defaults to :8884")
 	flag.StringVar(&siaAddr, "sia-api-addr", "localhost:9980", "the url used to connect to Sia. Defaults to \"localhost:9980\"")
 	flag.BoolVar(&disableCors, "disable-cors", false, "disables cross-origin requests, prevents cross-origin browser requests to the API")
+	flag.BoolVar(&logStdOut, "std-out", false, "sends output to stdout instead of the log file")
 	flag.Parse()
 
 	if err := os.MkdirAll(dataPath, 0770); err != nil && !os.IsExist(err) {
@@ -53,13 +55,17 @@ func init() {
 		log.Fatalf("error initializing database: %s", err)
 	}
 
+	if logStdOut {
+		return
+	}
+
 	logFile, err = os.OpenFile(filepath.Join(dataPath, "log.log"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 
 	if err != nil {
 		log.Fatalf("error opening log: %s", err)
 	}
 
-	// log.SetOutput(logFile)
+	log.SetOutput(logFile)
 }
 
 func openbrowser(url string) {

@@ -30,4 +30,4 @@ COPY --from=buildgo /daemon/release/dashboard /usr/bin/dashboard
 
 ENV SIA_API_ADDR="localhost:9980"
 
-ENTRYPOINT /usr/bin/dashboard --data-path "/data" --sia-api-addr $SIA_API_ADDR
+ENTRYPOINT /usr/bin/dashboard --std-out --data-path "/data" --sia-api-addr $SIA_API_ADDR

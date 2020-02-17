@@ -15,7 +15,7 @@
 				<div v-html="contractFailLabel" />
 			</div>
 			<div class="chart-label line-secondary">
-				<div class="label-title">Active</div>
+				<div class="label-title">Expiring</div>
 				<div v-html="contractActiveLabel" />
 			</div>
 		</div>

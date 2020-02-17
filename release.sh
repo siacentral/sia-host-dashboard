@@ -5,7 +5,7 @@ cd daemon
 build() {
 	os=$1
 	arch=$2
-	folder=releases/dashboard-$os-$arch
+	folder=../releases/dashboard-$os-$arch
 	bin=dashboard
 
 	if [ "$os" == "windows" ]; then

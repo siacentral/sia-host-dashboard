@@ -24,7 +24,7 @@ pack:
 	npm i && \
 	npm run build && \
 	cd .. && \
-	go run generate/assets_generate.go ../web/dist
+	go run generate/assets_generate.go ./web/dist
 
 run: install-dependencies lint-web lint-daemon pack
 	go run daemon/daemon.go --data-path $(PWD)/data

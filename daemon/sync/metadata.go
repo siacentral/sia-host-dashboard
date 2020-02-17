@@ -63,6 +63,8 @@ func getFirstSeen(pubkey string, meta *types.HostMeta) error {
 func syncHostMeta(contracts []mergedContract) {
 	var meta types.HostMeta
 
+	cache.ClearAlerts(AlertSyncError)
+
 	calcHostContracts(contracts, &meta)
 
 	host, err := apiClient.HostGet()

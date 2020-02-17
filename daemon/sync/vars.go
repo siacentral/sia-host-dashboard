@@ -15,6 +15,9 @@ var (
 	// AlertWalletLocked alerts the user that their wallet is currently locked
 	AlertWalletLocked = types.HostAlertID("hostAlertWalletLocked")
 
+	// AlertWalletBalance alerts the user that their wallet is currently locked
+	AlertWalletBalance = types.HostAlertID("hostAlertWalletBalance")
+
 	// AlertCollateralBudget alerts the user that the collateral budget is almost fully utilized
 	AlertCollateralBudget = types.HostAlertID("hostAlertCollateralBudgetUtilization")
 

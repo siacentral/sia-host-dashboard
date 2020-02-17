@@ -25,7 +25,7 @@ func calcPercentage(a, b siatypes.Currency) (v uint8) {
 }
 
 func calcPercentage64(a, b uint64) uint8 {
-	if a == b || a < b {
+	if a == b || a > b {
 		return 100
 	}
 
@@ -202,12 +202,20 @@ func syncHostStatus() error {
 	status.Settings.StoragePrice = host.ExternalSettings.StoragePrice
 	status.Settings.UploadBandwidthPrice = host.ExternalSettings.UploadBandwidthPrice
 
-	cache.ClearAlerts(AlertWalletLocked, AlertCollateralBudget)
+	cache.ClearAlerts(AlertWalletLocked, AlertWalletBalance, AlertCollateralBudget)
 
 	if !status.WalletUnlocked {
 		cache.AddAlert(AlertWalletLocked, types.HostAlert{
 			Severity: "severe",
 			Text:     "Wallet is locked. Wallet must be unlocked to form new contracts.",
+			Type:     "wallet",
+		})
+	}
+
+	if wallet.ConfirmedSiacoinBalance.Cmp64(0) != 1 {
+		cache.AddAlert(AlertWalletBalance, types.HostAlert{
+			Severity: "severe",
+			Text:     "Wallet has no more Siacoins to use for collateral. Send more Siacoins.",
 			Type:     "wallet",
 		})
 	}

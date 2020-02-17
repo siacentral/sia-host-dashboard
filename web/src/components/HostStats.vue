@@ -21,7 +21,7 @@
 				</div>
 			</div>
 			<div class="panel">
-				<div class="title">Bandwidth Usage</div>
+				<div class="title">Bandwidth Usage (Last 30 Days)</div>
 				<div class="data-points">
 					<div class="data-panel">
 						<div class="data-value" v-html="uploadBytesStr" />

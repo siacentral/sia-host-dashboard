@@ -89,3 +89,23 @@ func GetLastMetadata() (metadata types.HostMeta, err error) {
 
 	return
 }
+
+//GetClosestMeta returns the metadata snapshot closest to the specified time
+func GetClosestMeta(timestamp time.Time) (metadata types.HostMeta, err error) {
+	err = db.View(func(tx *bolt.Tx) error {
+		c := tx.Bucket(bucketHostMeta).Cursor()
+		_, buf := c.Seek(timeID(timestamp))
+
+		if buf == nil {
+			return nil
+		}
+
+		if err := json.Unmarshal(buf, &metadata); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return
+}

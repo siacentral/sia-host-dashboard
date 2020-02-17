@@ -3,6 +3,7 @@ package web
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/siacentral/host-dashboard/daemon/cache"
 	"github.com/siacentral/host-dashboard/daemon/persist"
@@ -25,7 +26,17 @@ func handleGetHostStatus(w http.ResponseWriter, r *router.APIRequest) {
 		router.HandleError("unable to retrieve metadata", 500, w, r)
 	}
 
+	usage, err := persist.GetClosestMeta(time.Now().AddDate(0, 0, -30))
+	if err != nil {
+		log.Println(err)
+		router.HandleError("unable to retrieve past usage", 500, w, r)
+	}
+
 	status := cache.GetHostStatus()
+
+	status.UploadBandwidth -= usage.UploadBandwidth
+	status.DownloadBandwidth -= usage.DownloadBandwidth
+
 	status.ActiveContracts = meta.ActiveContracts
 	status.SuccessfulContracts = meta.SuccessfulContracts
 	status.FailedContracts = meta.FailedContracts

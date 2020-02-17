@@ -31,7 +31,10 @@ var (
 )
 
 func writeLine(format string, args ...interface{}) {
-	os.Stdout.WriteString(fmt.Sprintf(format, args...) + "\n")
+	if !logStdOut {
+		os.Stdout.WriteString(fmt.Sprintf(format, args...) + "\n")
+	}
+
 	log.Printf(format, args...)
 }
 

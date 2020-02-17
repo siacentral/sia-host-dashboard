@@ -1,4 +1,8 @@
 // +build ignore
+
+// builds and packages the web app into the binary. Creates a static file
+// /daemon/assets/assets.go with the built web assets embedded
+
 package main
 
 import (

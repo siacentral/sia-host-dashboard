@@ -78,7 +78,7 @@ export default {
 	}
 
 	.chart {
-		margin: 0 -15px -5px;
+		margin: 0 -15px -15px;
 		align-self: bottom;
 	}
 

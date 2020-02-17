@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -19,7 +18,7 @@ func StartedInExplorer() {
 
 	cmd := exec.Command("cmd")
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		CmdLine: fmt.Sprintf(`cmd /K start "%s"`, os.Args[0]),
+		CmdLine: `cmd /K start dashboard.exe`,
 	}
 
 	if err := cmd.Run(); err != nil {

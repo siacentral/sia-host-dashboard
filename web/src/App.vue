@@ -2,6 +2,7 @@
 	<div id="app">
 		<div id="dashboard-wrapper">
 			<div id="dashboard">
+				<alert-list :alerts="alerts" />
 				<host-stats :settings="settings" :status="status" />
 				<div class="date-range">
 					<button class="date-range-next" @click="onSetDate(-1)"><icon icon="chevron-left" /></button>
@@ -17,9 +18,9 @@
 			</div>
 		</div>
 		<div class="extra-links">
-			<a href="https://github.com/siacentral/host-dashboard"><icon :icon="['fab', 'github']" /></a>
-			<a href="https://siacentral.com"><sia-central /></a>
-			<a href="https://sia.tech"><built-with-sia /></a>
+			<a target="_blank" href="https://github.com/siacentral/host-dashboard"><icon :icon="['fab', 'github']" /></a>
+			<a target="_blank" href="https://siacentral.com"><sia-central /></a>
+			<a target="_blank" href="https://sia.tech"><built-with-sia /></a>
 		</div>
 	</div>
 </template>
@@ -30,6 +31,7 @@ import { mapActions } from 'vuex';
 import { getStatus, getSnapshots, getTotals, getCoinPrice, getAverageSettings } from '@/utils/api';
 import { formatDate } from '@/utils/format';
 
+import AlertList from '@/components/alerts/AlertList';
 import DashboardCharts from '@/components/charts/DashboardCharts';
 import DashboardData from '@/components/DashboardData';
 import HostStats from '@/components/HostStats';
@@ -38,6 +40,7 @@ import BuiltWithSia from '@/assets/built-with-sia.svg';
 
 export default {
 	components: {
+		AlertList,
 		BuiltWithSia,
 		DashboardCharts,
 		DashboardData,
@@ -49,8 +52,8 @@ export default {
 			loaded: false,
 			currentDate: new Date(),
 			totals: {},
-			settings: {},
 			status: {},
+			alerts: [],
 			snapshots: [],
 			averageSettings: {}
 		};
@@ -58,12 +61,18 @@ export default {
 	computed: {
 		dateStr() {
 			return formatDate(this.currentDate);
+		},
+		settings() {
+			if (!this.status || typeof this.status.host_settings !== 'object')
+				return {};
+
+			return this.status.host_settings;
 		}
 	},
 	beforeMount() {
 		const d = new Date();
 
-		d.setHours(23, 59, 59, 999);
+		d.setHours(23, 0, 0, 0);
 		this.currentDate = d;
 	},
 	async mounted() {
@@ -98,7 +107,9 @@ export default {
 				getStatus()
 					.then(status => {
 						this.status = status.status;
-						this.settings = status.status.host_settings;
+
+						if (Array.isArray(status.alerts))
+							this.alerts = status.alerts;
 					}),
 				getSnapshots(this.currentDate)
 					.then(snapshots => {

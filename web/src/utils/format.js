@@ -108,7 +108,7 @@ export function formatShortTimeString(date) {
 
 export function formatDuration(sec, short) {
 	if (sec < 60)
-		return [{ value: 1, label: 'min' }];
+		return [{ value: 0, label: 'd' }, { value: 0, label: 'h' }, { value: 1, label: 'm' }];
 
 	let denoms;
 
@@ -124,9 +124,6 @@ export function formatDuration(sec, short) {
 	for (; i < len; i++) {
 		label = keys[i];
 		d = denoms[label];
-
-		if (time < d && labels.length === 0)
-			continue;
 
 		const amt = Math.floor(time / d);
 

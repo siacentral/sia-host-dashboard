@@ -25,7 +25,7 @@
 			:height="`${height}px`"
 			:key="i - 1"
 			fill="transparent"
-			@mouseover="$emit('selected', i)"
+			@mouseover="$emit('selected', i - 1)"
 			@mouseout="$emit('selected', -1)"/>
 	</svg>
 </template>

@@ -34,10 +34,10 @@ export default {
 	},
 	computed: {
 		selectedLabel() {
-			if (this.active === -1 || !this.labels[this.active - 1])
-				return `${this.labels[0]} - ${this.labels[this.labels.length - 1]}`;
+			if (this.active === -1 || !this.labels[this.active])
+				return `${this.labels[this.labels.length - 4]}`;
 
-			return this.labels[this.active - 1];
+			return this.labels[this.active];
 		}
 	},
 	methods: {

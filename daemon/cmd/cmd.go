@@ -1,3 +1,5 @@
+// +build !windows
+
 package cmd
 
 // StartedInExplorer on windows checks if we need to spawn a new command line to prevent

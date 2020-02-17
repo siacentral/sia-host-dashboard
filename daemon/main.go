@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -96,6 +97,8 @@ func startAPI() {
 }
 
 func main() {
+	var openAddr string
+
 	writeLine("Starting Host Dashboard")
 
 	if err := sync.Start(siaAddr); err != nil {
@@ -104,9 +107,15 @@ func main() {
 
 	go startAPI()
 
-	log.Printf("Host Dashboard Ready at: http://localhost:%d", 8884)
+	if strings.Index(listenAddr, ":") == 0 {
+		openAddr = fmt.Sprintf("http://localhost%s", listenAddr)
+	} else {
+		openAddr = fmt.Sprintf("http://%s", listenAddr)
+	}
 
-	//openbrowser("http://localhost:8884")
+	log.Printf("Host Dashboard Ready at: %s", openAddr)
+
+	openbrowser(openAddr)
 
 	sigChan := make(chan os.Signal, 1)
 

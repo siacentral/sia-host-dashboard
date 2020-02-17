@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e
 
 build() {
@@ -17,7 +19,7 @@ build() {
 	GOOS=${os} GOARCH=amd64 go build -a -trimpath -o $folder/$bin ./daemon/daemon.go
 }
 
-sys=( darwin linux windows )
+sys=(darwin linux windows)
 
 if [ "$1" != "" ] && [ "$2" != "" ]; then
 	build $1 $2

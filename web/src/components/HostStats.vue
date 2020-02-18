@@ -25,11 +25,11 @@
 				<div class="data-points">
 					<div class="data-panel">
 						<div class="data-value" v-html="uploadBytesStr" />
-						<div class="data-title">Upload</div>
+						<div class="data-title">Sent</div>
 					</div>
 					<div class="data-panel">
 						<div class="data-value" v-html="downloadBytesStr" />
-						<div class="data-title">Download</div>
+						<div class="data-title">Received</div>
 					</div>
 				</div>
 			</div>

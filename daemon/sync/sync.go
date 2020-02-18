@@ -87,6 +87,9 @@ func refreshStatus() {
 }
 
 func getBandwidthUsage() (upload, download uint64) {
+	bandwidthMu.Lock()
+	defer bandwidthMu.Unlock()
+
 	bw, err := apiClient.HostBandwidthGet()
 
 	if err != nil {
@@ -94,35 +97,38 @@ func getBandwidthUsage() (upload, download uint64) {
 		return
 	}
 
-	bandwidthMu.Lock()
-
 	dUp := bw.Upload
 	dDown := bw.Download
 
-	if dUp > counters.lastUpload {
+	if dUp >= counters.lastUpload {
 		dUp -= counters.lastUpload
 	}
 
-	if dDown > counters.lastDownload {
+	if dDown >= counters.lastDownload {
 		dDown -= counters.lastDownload
 	}
 
 	upload = counters.totalUpload + dUp
 	download = counters.totalDownload + dDown
 
+	log.Println("Upload:", upload)
+	log.Println("Download:", download)
+
 	counters.totalUpload = upload
 	counters.totalDownload = download
 	counters.lastUpload = bw.Upload
 	counters.lastDownload = bw.Download
-	bandwidthMu.Unlock()
 
 	return
 }
 
 // initializes the bandwidth counters from the database to count the total bandwidth usage of the
-// host. This will cause us to lose a few bytes on initialization, but should prevent counting
+// host. This will cause us to lose any existing bytes on initialization, but should prevent counting
 // bandwidth twice
 func initBandwidthCounters() {
+	bandwidthMu.Lock()
+	defer bandwidthMu.Unlock()
+
 	meta, err := persist.GetLastMetadata()
 	if err != nil {
 		log.Printf("warn: unable to load bandwidth: %s", err)
@@ -136,13 +142,11 @@ func initBandwidthCounters() {
 		return
 	}
 
-	bandwidthMu.Lock()
 	counters = new(bandwidthCounters)
 	counters.totalUpload = meta.UploadBandwidth
 	counters.totalDownload = meta.DownloadBandwidth
 	counters.lastUpload = bw.Upload
 	counters.lastDownload = bw.Download
-	bandwidthMu.Unlock()
 }
 
 //Start begins syncing data from Sia

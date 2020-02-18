@@ -1,5 +1,10 @@
 package build
 
+const (
+	// Version the current version of the dashboard
+	Version = "v0.0.2"
+)
+
 var (
 	// GitRevision the revision that the dashboard was built at
 	GitRevision string

@@ -112,7 +112,7 @@ func main() {
 
 	cmd.StartedInExplorer()
 
-	writeLine("Starting Host Dashboard")
+	writeLine("Starting Host Dashboard %s", build.Version)
 	writeLine("Revision: %s Build Time: %s", build.GitRevision, build.BuildTimestamp)
 
 	if err := sync.Start(siaAddr); err != nil {

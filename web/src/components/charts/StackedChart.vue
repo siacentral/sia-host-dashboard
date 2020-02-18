@@ -73,7 +73,7 @@ export default {
 			return this.stacked.map((ps, i) => {
 				const coords = ps.map((v, j) => [
 					(this.nodeWidth / 2) + this.nodeWidth * j,
-					new BigNumber(this.height - 60).minus(v.div(this.maxY).times(this.height * 0.7)).toNumber()
+					new BigNumber(this.height - (this.height * 0.1)).minus(v.div(this.maxY).times(this.height * 0.8)).toNumber()
 				]);
 
 				coords.unshift([this.nodeWidth * -1, coords[0][1]]);
@@ -98,7 +98,7 @@ export default {
 	},
 	data() {
 		return {
-			width: 800,
+			width: 1000,
 			height: 300
 		};
 	}
@@ -106,6 +106,12 @@ export default {
 </script>
 
 <style lang='stylus' scoped>
+svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
 .point-bg {
 	fill: bg-accent;
 }

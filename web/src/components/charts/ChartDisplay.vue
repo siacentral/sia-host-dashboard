@@ -8,8 +8,10 @@
 		<div class="chart">
 			<stacked-chart :nodes="nodes" :colors="colors" :fills="fills" @selected="onSetSelected" />
 		</div>
-		<div class="chart-label-left">{{ labels[0] }}</div>
-		<div class="chart-label-right">{{ labels[labels.length - 1] }}</div>
+		<div class="chart-labels">
+			<div class="chart-label-left">{{ labels[0] }}</div>
+			<div class="chart-label-right">{{ labels[labels.length - 1] }}</div>
+		</div>
 	</div>
 </template>
 
@@ -63,43 +65,39 @@ export default {
 	border-radius: 8px;
 	overflow: hidden;
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-	grid-gap: 15px;
-	padding: 15px 15px 0;
 
 	.chart-title, .chart-selected {
 		font-size: 1rem;
 		color: rgba(255, 255, 255, 0.84);
 		white-space: nowrap;
+		padding: 10px 15px 15px;
 	}
 
 	.chart-sub {
 		font-size: 1.2rem;
 		color: primary;
+		padding: 5px 15px;
 	}
 
 	.chart {
-		margin: 0 -15px -15px;
-		align-self: bottom;
+		vertical-align: top;
+		font-size: 0;
+		margin-bottom: -1px;
 	}
 
-	.chart, .chart-sub, .chart-controls {
+	.chart, .chart-sub, .chart-controls, .chart-labels {
 		grid-column: 1 / -1;
 	}
 
-	.chart-label-left, .chart-label-right {
-		position: absolute;
-		bottom: 5px;
-		font-size: 0.8rem;
+	.chart-labels {
+		display: grid;
+		grid-template-columns: repeat(2, auto);
+		justify-content: space-between;
+		align-content: center;
 		color: rgba(255, 255, 255, 0.84);
-		z-index: 2;
-	}
-
-	.chart-label-left {
-		left: 10px;
-	}
-
-	.chart-label-right {
-		right: 10px;
+		font-size: 0.8rem;
+		padding: 0 15px 10px;
+		background: #227051;
 	}
 
 	.chart-data-controls {

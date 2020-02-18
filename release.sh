@@ -2,6 +2,10 @@
 
 set -e
 
+buildtime=$(date)
+gitrevision=$(git rev-parse --short HEAD)
+buildflags="-X 'github.com/siacentral/host-dashboard/daemon/build.GitRevision=$gitrevision' -X 'github.com/siacentral/host-dashboard/daemon/build.BuildTimestamp=$buildtime'"
+
 build() {
 	os=$1
 	arch=$2
@@ -16,7 +20,7 @@ build() {
 
 	rm -rf $folder
 	mkdir -p $folder
-	GOOS=${os} GOARCH=amd64 go build -a -trimpath -o $folder/$bin ./daemon/daemon.go
+	GOOS=${os} GOARCH=amd64 go build -ldflags="$buildflags" -a -trimpath -o $folder/$bin ./daemon/daemon.go
 }
 
 sys=(darwin linux windows)

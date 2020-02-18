@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/siacentral/host-dashboard/daemon/build"
 	"github.com/siacentral/host-dashboard/daemon/cmd"
 	"github.com/siacentral/host-dashboard/daemon/persist"
 	"github.com/siacentral/host-dashboard/daemon/sync"
@@ -112,6 +113,7 @@ func main() {
 	cmd.StartedInExplorer()
 
 	writeLine("Starting Host Dashboard")
+	writeLine("Revision: %s Build Time: %s", build.GitRevision, build.BuildTimestamp)
 
 	if err := sync.Start(siaAddr); err != nil {
 		log.Fatalf("error syncing data: %s", err)

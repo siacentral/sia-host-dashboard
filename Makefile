@@ -1,6 +1,3 @@
-BUILD_TIME=$(shell date)
-GIT_REVISION=$(shell git rev-parse --short HEAD)
-
 all: release
 
 install-dependencies: 

@@ -104,7 +104,7 @@ func chainMiddleware(router *APIRouter, endpoint APIEndpoint, middleware ...Midd
 		return endpoint.Handler
 	}
 
-	return middleware[0](router, endpoint, chainMiddleware(router, endpoint, middleware[1:cap(middleware)]...))
+	return middleware[0](router, endpoint, chainMiddleware(router, endpoint, middleware[1:len(middleware)]...))
 }
 
 func (router *APIRouter) attachMiddleware(endpoint APIEndpoint) http.Handler {

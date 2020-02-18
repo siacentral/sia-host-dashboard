@@ -269,7 +269,7 @@ export default {
 		font-size: 1.5rem;
 	}
 
-	@media screen and (min-width: 600px) {
+	@media screen and (min-width: 757px) {
 		grid-template-columns: auto repeat(2, minmax(0, 1fr));
 	}
 

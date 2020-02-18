@@ -111,9 +111,6 @@ func getBandwidthUsage() (upload, download uint64) {
 	upload = counters.totalUpload + dUp
 	download = counters.totalDownload + dDown
 
-	log.Println("Upload:", upload)
-	log.Println("Download:", download)
-
 	counters.totalUpload = upload
 	counters.totalDownload = download
 	counters.lastUpload = bw.Upload

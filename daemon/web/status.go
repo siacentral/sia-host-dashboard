@@ -45,6 +45,7 @@ func handleGetHostStatus(w http.ResponseWriter, r *router.APIRequest) {
 	status.PotentialRevenue = meta.PotentialRevenue
 	status.BurntCollateral = meta.BurntCollateral
 	status.FirstSeen = meta.FirstSeen
+	status.StorageDelta = int64(status.UsedStorage) - int64(usage.UsedStorage)
 
 	router.SendJSONResponse(hostStatusResponse{
 		APIResponse: router.APIResponse{

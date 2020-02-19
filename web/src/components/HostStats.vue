@@ -3,8 +3,14 @@
 		<div class="split">
 			<div class="panel">
 				<div class="title">Uptime</div>
-				<div class="uptime-counter">
+				<div class="data-point">
 					<div v-html="uptimeStr" />
+				</div>
+			</div>
+			<div class="panel">
+				<div class="title">Storage Delta (Last 30 Days)</div>
+				<div :class="deltaClasses">
+					<div v-html="deltaByteStr" />
 				</div>
 			</div>
 			<div class="panel">
@@ -96,6 +102,17 @@ export default {
 
 			return val;
 		},
+		deltaStorageBytes() {
+			let val = new BigNumber(0);
+
+			if (this.status && this.status.storage_delta)
+				val = new BigNumber(this.status.storage_delta);
+
+			if (!val.isFinite() || val.isNaN())
+				val = new BigNumber(0);
+
+			return val;
+		},
 		uploadBytes() {
 			let val = new BigNumber(0);
 
@@ -162,6 +179,12 @@ export default {
 
 			return val;
 		},
+		deltaClasses() {
+			if (this.deltaStorageBytes.isNegative())
+				return { 'data-point': true, 'text-error': true };
+
+			return { 'data-point': true };
+		},
 		uptimeStr() {
 			let v = 0;
 
@@ -179,6 +202,11 @@ export default {
 		},
 		totalByteStr() {
 			const format = formatByteString(this.totalStorageBytes, 'decimal', 2);
+
+			return `${format.value} <span class="currency-display">${format.label}</span>`;
+		},
+		deltaByteStr() {
+			const format = formatByteString(this.deltaStorageBytes, 'decimal', 2);
 
 			return `${format.value} <span class="currency-display">${format.label}</span>`;
 		},
@@ -270,7 +298,7 @@ export default {
 	}
 
 	@media screen and (min-width: 757px) {
-		grid-template-columns: auto repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(2, auto) repeat(2, minmax(0, 1fr));
 	}
 
 	@media screen and (min-width: 850px) {
@@ -282,12 +310,10 @@ export default {
 	}
 }
 
-.uptime-counter {
-	display: grid;
+.data-point {
 	font-size: 1.5rem;
 	color: primary;
-	align-content: center;
-	justify-content: center;
+	text-align: center;
 }
 
 .title {

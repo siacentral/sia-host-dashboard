@@ -20,6 +20,7 @@ type (
 		AcceptingContracts bool      `json:"accepting_contracts"`
 		WalletUnlocked     bool      `json:"wallet_unlocked"`
 		Version            string    `json:"version"`
+		StorageDelta       int64     `json:"storage_delta"`
 		StartTime          time.Time `json:"start_time"`
 	}
 )

@@ -144,6 +144,8 @@ func syncHostStatus() error {
 
 	host, err := apiClient.HostGet()
 
+	cache.ClearAlerts(AlertSyncError)
+
 	if err != nil {
 		cache.AddAlert(AlertSyncError, types.HostAlert{
 			Severity: "severe",

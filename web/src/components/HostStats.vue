@@ -206,9 +206,10 @@ export default {
 			return `${format.value} <span class="currency-display">${format.label}</span>`;
 		},
 		deltaByteStr() {
-			const format = formatByteString(this.deltaStorageBytes, 'decimal', 2);
+			const sign = this.deltaStorageBytes.isNegative(),
+				format = formatByteString(this.deltaStorageBytes.abs(), 'decimal', 2);
 
-			return `${format.value} <span class="currency-display">${format.label}</span>`;
+			return `${sign ? '-' : ''}${format.value} <span class="currency-display">${format.label}</span>`;
 		},
 		uploadBytesStr() {
 			const format = formatByteString(this.uploadBytes, 'decimal', 2);

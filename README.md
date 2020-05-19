@@ -1,3 +1,5 @@
+[![Docker Pulls](https://img.shields.io/docker/pulls/siacentral/host-dashboard?color=19cf86&style=for-the-badge)](https://hub.docker.com/r/siacentral/host-dashboard)
+
 A simple and powerful dashboard for Sia network Hosts. Combines data for your node with data
 from the blockchain to provide accurate and powerful financial and health statistics for hosts.
 

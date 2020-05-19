@@ -149,8 +149,10 @@ func initBandwidthCounters() {
 //Start begins syncing data from Sia
 func Start(siaAddr string) error {
 	apiClient = &siaapi.Client{
-		Address:   siaAddr,
-		UserAgent: "Sia-Agent",
+		Options: siaapi.Options{
+			Address:   siaAddr,
+			UserAgent: "Sia-Agent",
+		},
 	}
 
 	initBandwidthCounters()

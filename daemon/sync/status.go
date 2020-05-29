@@ -115,7 +115,7 @@ func syncHostConnectivity() error {
 		return fmt.Errorf("sia api get failed: %s", err)
 	}
 
-	netaddress := string(host.InternalSettings.NetAddress)
+	netaddress := string(host.ExternalSettings.NetAddress)
 
 	log.Printf("host netaddress %s", netaddress)
 

@@ -2,7 +2,7 @@
 
 set -e
 
-buildtime=$(date)
+buildtime=$(git show -s --format=%ci HEAD)
 gitrevision=$(git rev-parse --short HEAD)
 buildflags="-X 'github.com/siacentral/host-dashboard/daemon/build.GitRevision=$gitrevision' -X 'github.com/siacentral/host-dashboard/daemon/build.BuildTimestamp=$buildtime'"
 

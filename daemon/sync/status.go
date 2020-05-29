@@ -2,6 +2,7 @@ package sync
 
 import (
 	"fmt"
+	"log"
 
 	siacentralapi "github.com/siacentral/apisdkgo"
 	"github.com/siacentral/host-dashboard/daemon/cache"
@@ -111,12 +112,22 @@ func syncHostConnectivity() error {
 			Text:     fmt.Sprintf("Unable to check host connectivity"),
 			Type:     "sync",
 		})
-		return err
+		return fmt.Errorf("sia api get failed: %s", err)
 	}
 
-	netaddress := fmt.Sprintf("%s:%s",
-		host.InternalSettings.NetAddress.Host(),
-		host.InternalSettings.NetAddress.Port())
+	netaddress := string(host.InternalSettings.NetAddress)
+
+	log.Printf("host netaddress %s", netaddress)
+
+	if len(netaddress) == 0 {
+		cache.AddAlert(AlertSyncError, types.HostAlert{
+			Severity: "severe",
+			Text:     fmt.Sprintf("Unable to check host connectivity"),
+			Type:     "sync",
+		})
+		return fmt.Errorf("unable to netaddress")
+	}
+
 	report, err := siacentralapi.GetHostConnectivity(netaddress)
 
 	if err != nil {
@@ -125,7 +136,7 @@ func syncHostConnectivity() error {
 			Text:     fmt.Sprintf("Failed to check connectivity: %s", err.Error()),
 			Type:     "connection",
 		})
-		return err
+		return fmt.Errorf("failed to check connection: %s", err)
 	}
 
 	for _, err := range report.Errors {

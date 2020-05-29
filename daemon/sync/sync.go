@@ -162,7 +162,7 @@ func Start(siaAddr string) error {
 	}
 
 	if err := syncHostConnectivity(); err != nil {
-		return fmt.Errorf("refreshing connectivity: %s", err)
+		log.Println(fmt.Errorf("refreshing connectivity: %s", err))
 	}
 
 	if err := syncHostStatus(); err != nil {

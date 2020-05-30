@@ -1,5 +1,5 @@
 # build web app
-FROM node:12 AS buildnode
+FROM node:13-alpine AS buildnode
 
 WORKDIR /web
 

@@ -2,7 +2,7 @@ package build
 
 const (
 	// Version the current version of the dashboard
-	Version = "v0.0.8"
+	Version = "v0.0.9"
 )
 
 var (

@@ -1,6 +1,27 @@
 <template>
 	<div id="app">
 		<div id="dashboard-wrapper">
+			<div class="control control-inline">
+				<select v-model="displayCurrency" @change="onChangeCurrency">
+					<optgroup label="Fiat">
+						<option value="usd">USD</option>
+						<option value="jpy">JPY</option>
+						<option value="eur">EUR</option>
+						<option value="gbp">GBP</option>
+						<option value="aus">AUS</option>
+						<option value="cad">CAD</option>
+						<option value="rub">RUB</option>
+						<option value="cny">CNY</option>
+					</optgroup>
+					<optgroup label="Crypto">
+						<option value="btc">BTC</option>
+						<option value="bch">BCH</option>
+						<option value="eth">ETH</option>
+						<option value="xrp">XRP</option>
+						<option value="ltc">LTC</option>
+					</optgroup>
+				</select>
+			</div>
 			<div id="dashboard">
 				<alert-list :alerts="alerts" />
 				<host-stats :settings="settings" :status="status" />
@@ -26,7 +47,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 
 import { getStatus, getSnapshots, getTotals, getCoinPrice, getAverageSettings } from '@/utils/api';
 import { formatDate } from '@/utils/format';
@@ -55,10 +76,12 @@ export default {
 			status: {},
 			alerts: [],
 			snapshots: [],
-			averageSettings: {}
+			averageSettings: {},
+			displayCurrency: 'usd'
 		};
 	},
 	computed: {
+		...mapState(['currency']),
 		dateStr() {
 			return formatDate(this.currentDate);
 		},
@@ -74,6 +97,7 @@ export default {
 
 		d.setHours(23, 0, 0, 0);
 		this.currentDate = d;
+		this.displayCurrency = this.currency;
 	},
 	async mounted() {
 		try {
@@ -88,7 +112,7 @@ export default {
 		}
 	},
 	methods: {
-		...mapActions(['setExchangeRateSC', 'setExchangeRateSF']),
+		...mapActions(['setCurrency', 'setExchangeRateSC', 'setExchangeRateSF']),
 		loadChainData() {
 			return Promise.all([
 				getCoinPrice()
@@ -133,6 +157,13 @@ export default {
 			} catch (ex) {
 				console.error('App.onChangeDate', ex);
 			}
+		},
+		onChangeCurrency() {
+			try {
+				this.setCurrency(this.displayCurrency);
+			} catch (ex) {
+				console.error('App.onChangeCurrency', ex);
+			}
 		}
 	}
 };
@@ -156,9 +187,26 @@ export default {
 	padding: 15px;
 	width: 100%;
 	max-width: 1200px;
+	grid-template-columns: minmax(0, 1fr) auto;
 	flex: 1;
 	margin: auto;
 	align-content: safe center;
+
+	.control {
+		margin-bottom: 10px;
+		grid-column: 1 / -1;
+		width: 100%;
+
+		@media screen and (min-width: 767px) {
+			min-width: 150px;
+			width: auto;
+			grid-column: 2;
+		}
+	}
+
+	#dashboard {
+		grid-column: 1 / -1;
+	}
 }
 
 .extra-links {

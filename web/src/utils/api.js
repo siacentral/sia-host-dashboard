@@ -35,7 +35,7 @@ export async function getSnapshots(end) {
 	if (!end)
 		end = new Date();
 
-	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/api/snapshots?end=${Math.round(end.getTime() / 1000)}`, 'GET', null, true);
+	const resp = await sendJSONRequest(`${'process.env.VUE_APP_API_BASE_URL'}/api/snapshots?end=${Math.round(end.getTime() / 1000)}`, 'GET', null, true);
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);
@@ -47,7 +47,7 @@ export async function getSnapshots(end) {
 }
 
 export async function getStatus() {
-	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/api/status`, 'GET', null, true);
+	const resp = await sendJSONRequest(`${'process.env.VUE_APP_API_BASE_URL'}/api/status`, 'GET', null, true);
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);
@@ -59,7 +59,7 @@ export async function getTotals(end) {
 	if (!end)
 		end = new Date();
 
-	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/api/totals?date=${Math.round(end.getTime() / 1000)}`, 'GET', null, true);
+	const resp = await sendJSONRequest(`${'process.env.VUE_APP_API_BASE_URL'}/api/totals?date=${Math.round(end.getTime() / 1000)}`, 'GET', null, true);
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);

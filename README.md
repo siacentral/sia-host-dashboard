@@ -103,6 +103,42 @@ docker run -d \
 	siacentral/host-dashboard
 ```
 
+### Docker Compose
+
+Below is a docker-compose example service to run Sia and Host Dashboard. Replace `SIA_API_PASSWORD` and `SIA_WALLET_PASSWORD` with your own passwords and the volume mounts with the correct volume paths
+
+```yml
+version: '3.0'
+services:
+  sia-host:
+    image: siacentral/sia:latest
+    environment:
+      - SIA_API_PASSWORD=asecureapipassword
+      - SIA_WALLET_PASSWORD=asecurewalletpassword
+    volumes:
+      - ./sia-data:/sia-data
+      - ./renter-data:/renter-data
+    ports:
+      - "127.0.0.1:9980:9980"
+      - "9981:9981"
+      - "9982:9982"
+      - "9983:9983"
+    restart: unless-stopped
+  host-dashboard:
+    image: siacentral/host-dashboard:latest
+    depends_on:
+      - sia-host
+    links:
+      - sia-host
+    environment:
+      - SIA_API_ADDR=sia-host:9980
+    volumes:
+      - ./dashboard-data:/data
+    ports:
+      - "8884:8884"
+    restart: unless-stopped
+```
+
 ## Development
 
 ### Lint and fix

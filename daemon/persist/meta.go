@@ -30,7 +30,7 @@ func SaveHostMeta(meta types.HostMeta) error {
 		buf, err := json.Marshal(meta)
 
 		if err != nil {
-			return fmt.Errorf("json encode: %s", err)
+			return fmt.Errorf("json encode: %w", err)
 		}
 
 		bucket.Put(timeID(meta.Timestamp), buf)

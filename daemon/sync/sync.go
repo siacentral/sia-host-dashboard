@@ -158,15 +158,15 @@ func Start(siaAddr string) error {
 	initBandwidthCounters()
 
 	if err := syncContracts(); err != nil {
-		return fmt.Errorf("refreshing contracts: %s", err)
+		return fmt.Errorf("refreshing contracts: %w", err)
 	}
 
 	if err := syncHostConnectivity(); err != nil {
-		log.Println(fmt.Errorf("refreshing connectivity: %s", err))
+		log.Println(fmt.Errorf("refreshing connectivity: %w", err))
 	}
 
 	if err := syncHostStatus(); err != nil {
-		return fmt.Errorf("refreshing status: %s", err)
+		return fmt.Errorf("refreshing status: %w", err)
 	}
 
 	go refreshContracts()

@@ -21,7 +21,7 @@ func SaveHostSnapshots(snapshots ...types.HostSnapshot) error {
 			buf, err := json.Marshal(snapshot)
 
 			if err != nil {
-				return fmt.Errorf("json encode: %s", err)
+				return fmt.Errorf("json encode: %w", err)
 			}
 
 			bucket.Put(timeID(snapshot.Timestamp), buf)

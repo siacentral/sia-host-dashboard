@@ -43,7 +43,7 @@ func syncStorageStatus(status *types.HostStatus) error {
 	folders, err := apiClient.HostStorageGet()
 
 	if err != nil {
-		return fmt.Errorf("get storage folders: %s", err)
+		return fmt.Errorf("get storage folders: %w", err)
 	}
 
 	cache.ClearAlerts(AlertFolderReadWriteError, AlertStorageUtilization)
@@ -112,7 +112,7 @@ func syncHostConnectivity() error {
 			Text:     fmt.Sprintf("Unable to check host connectivity"),
 			Type:     "sync",
 		})
-		return fmt.Errorf("sia api get failed: %s", err)
+		return fmt.Errorf("sia api get failed: %w", err)
 	}
 
 	netaddress := string(host.ExternalSettings.NetAddress)
@@ -136,7 +136,7 @@ func syncHostConnectivity() error {
 			Text:     fmt.Sprintf("Failed to check connectivity: %s", err.Error()),
 			Type:     "connection",
 		})
-		return fmt.Errorf("failed to check connection: %s", err)
+		return fmt.Errorf("failed to check connection: %w", err)
 	}
 
 	for _, err := range report.Errors {
@@ -163,7 +163,7 @@ func syncHostStatus() error {
 			Text:     "Unable to sync host. Check your Sia connection.",
 			Type:     "sync",
 		})
-		return fmt.Errorf("get host: %s", err)
+		return fmt.Errorf("get host: %w", err)
 	}
 
 	wallet, err := apiClient.WalletGet()
@@ -174,7 +174,7 @@ func syncHostStatus() error {
 			Text:     "Unable to sync host. Check your Sia connection.",
 			Type:     "sync",
 		})
-		return fmt.Errorf("get wallet: %s", err)
+		return fmt.Errorf("get wallet: %w", err)
 	}
 
 	gbw, err := apiClient.GatewayBandwidthGet()
@@ -185,7 +185,7 @@ func syncHostStatus() error {
 			Text:     "Unable to sync host. Check your Sia connection.",
 			Type:     "sync",
 		})
-		return fmt.Errorf("get wallet: %s", err)
+		return fmt.Errorf("get wallet: %w", err)
 	}
 
 	if err := syncStorageStatus(&status); err != nil {
@@ -194,7 +194,7 @@ func syncHostStatus() error {
 			Text:     "Unable to sync host. Check your Sia connection.",
 			Type:     "sync",
 		})
-		return fmt.Errorf("get storage folders: %s", err)
+		return fmt.Errorf("get storage folders: %w", err)
 	}
 
 	up, down := getBandwidthUsage()

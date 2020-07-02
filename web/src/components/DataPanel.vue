@@ -12,12 +12,21 @@
 			<div class="point-value point-secondary" v-html="potentialRevenueCurrency" />
 		</div>
 		<div class="data-point">
+			<div class="point-title">Burnt Collateral</div>
+			<div class="point-value" v-html="burntCollateralSC" />
+			<div class="point-value point-secondary" v-html="burntCollateralCurrency" />
+		</div>
+		<div class="data-point">
 			<div class="point-title">{{ contractLabel }}</div>
 			<div class="point-value" v-html="contractsStr" />
 		</div>
 		<div class="data-point">
 			<div class="point-title">Successful Contracts</div>
 			<div class="point-value" v-html="successfulContractsStr" />
+		</div>
+		<div class="data-point">
+			<div class="point-title">Failed Contracts</div>
+			<div class="point-value" v-html="failedContractsStr" />
 		</div>
 	</div>
 </template>
@@ -32,9 +41,11 @@ export default {
 		title: String,
 		earnedRevenue: String,
 		potentialRevenue: String,
+		burntCollateral: String,
 		contractLabel: String,
 		contracts: Number,
-		successfulContracts: Number
+		successfulContracts: Number,
+		failedContracts: Number
 	},
 	computed: {
 		...mapState(['exchangeRateSC', 'currency']),
@@ -58,8 +69,28 @@ export default {
 
 			return `${format.value} <span class="currency-display">${format.label}</span>`;
 		},
+		burntCollateralSC() {
+			let val = new BigNumber(this.burntCollateral);
+
+			if (!val.isFinite() || val.isNaN())
+				val = new BigNumber(0);
+
+			const format = formatPriceString(val);
+
+			return `${format.value} <span class="currency-display">${format.label}</span>`;
+		},
 		earnedRevenueCurrency() {
 			let val = new BigNumber(this.earnedRevenue);
+
+			if (!val.isFinite() || val.isNaN())
+				val = new BigNumber(0);
+
+			const format = formatPriceString(val, 2, this.currency, this.exchangeRateSC[this.currency]);
+
+			return `${format.value} <span class="currency-display">${format.label}</span>`;
+		},
+		burntCollateralCurrency() {
+			let val = new BigNumber(this.burntCollateral);
 
 			if (!val.isFinite() || val.isNaN())
 				val = new BigNumber(0);
@@ -88,6 +119,14 @@ export default {
 		},
 		successfulContractsStr() {
 			let val = new BigNumber(this.successfulContracts);
+
+			if (!val.isFinite() || val.isNaN())
+				val = new BigNumber(0);
+
+			return `${formatNumber(val)}`;
+		},
+		failedContractsStr() {
+			let val = new BigNumber(this.failedContracts);
 
 			if (!val.isFinite() || val.isNaN())
 				val = new BigNumber(0);

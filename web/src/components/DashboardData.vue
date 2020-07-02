@@ -4,30 +4,38 @@
 		:title="dayStr"
 		:earnedRevenue="day.earned_revenue"
 		:potentialRevenue="day.potential_revenue"
+		:burntCollateral="day.burnt_collateral"
 		:contracts="day.new_contracts"
 		contractLabel="New Contracts"
-		:successfulContracts="day.successful_contracts" />
+		:successfulContracts="day.successful_contracts"
+		:failedContracts="day.failed_contracts" />
 	<data-panel
 		:title="monthStr"
 		:earnedRevenue="month.earned_revenue"
 		:potentialRevenue="month.potential_revenue"
+		:burntCollateral="month.burnt_collateral"
 		:contracts="month.new_contracts"
 		contractLabel="New Contracts"
-		:successfulContracts="month.successful_contracts" />
+		:successfulContracts="month.successful_contracts"
+		:failedContracts="month.failed_contracts" />
 	<data-panel
 		:title="yearStr"
 		:earnedRevenue="year.earned_revenue"
 		:potentialRevenue="year.potential_revenue"
+		:burntCollateral="year.burnt_collateral"
 		:contracts="year.new_contracts"
 		contractLabel="New Contracts"
-		:successfulContracts="year.successful_contracts" />
+		:successfulContracts="year.successful_contracts"
+		:failedContracts="year.failed_contracts" />
 	<data-panel
 		title="Total"
 		:earnedRevenue="total.earned_revenue"
 		:potentialRevenue="total.potential_revenue"
+		:burntCollateral="total.burnt_collateral"
 		:contracts="total.active_contracts"
 		contractLabel="Active Contracts"
-		:successfulContracts="total.successful_contracts" />
+		:successfulContracts="total.successful_contracts"
+		:failedContracts="total.failed_contracts" />
 </div>
 </template>
 

@@ -1,5 +1,8 @@
 import BigNumber from 'bignumber.js';
 
+const BASE_CURRENCY_PRECISION = 1e24,
+	BASE_CURRENCY_LABEL = 'SC';
+
 export function formatFriendlyStatus(status) {
 	switch (status.toLowerCase()) {
 	case 'obligationsucceeded':
@@ -192,7 +195,7 @@ function formatSiacoinString(val, dec) {
 	if (!val || val.isEqualTo(0)) {
 		return {
 			value: '0',
-			label: 'sc'
+			label: BASE_CURRENCY_LABEL
 		};
 	}
 
@@ -201,8 +204,8 @@ function formatSiacoinString(val, dec) {
 			type: 'decimal',
 			minimumFractionDigits: dec,
 			maximumFractionDigits: 5
-		}).format(roundNumber(val.dividedBy(1e24), dec)),
-		label: 'sc'
+		}).format(roundNumber(val.dividedBy(BASE_CURRENCY_PRECISION), dec)),
+		label: BASE_CURRENCY_LABEL
 	};
 };
 
@@ -221,7 +224,7 @@ function formatCryptoString(val, dec, currency, rate) {
 			type: 'decimal',
 			minimumFractionDigits: dec,
 			maximumFractionDigits: 5
-		}).format(roundNumber(val.dividedBy(1e24).times(rate), dec)),
+		}).format(roundNumber(val.dividedBy(BASE_CURRENCY_PRECISION).times(rate), dec)),
 		label: currency.toLowerCase()
 	};
 }
@@ -237,7 +240,7 @@ function formatCurrencyString(val, currency, rate) {
 	}
 
 	return {
-		value: formatter.format(roundNumber(val.dividedBy(1e24).times(rate), 2)),
+		value: formatter.format(roundNumber(val.dividedBy(BASE_CURRENCY_PRECISION).times(rate), 2)),
 		label: currency.toLowerCase()
 	};
 };

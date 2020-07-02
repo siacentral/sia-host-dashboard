@@ -3,23 +3,52 @@ package sync
 import (
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
-	siacentralapi "github.com/siacentral/apisdkgo"
-	apitypes "github.com/siacentral/apisdkgo/types"
 	"github.com/siacentral/host-dashboard/daemon/cache"
 	"github.com/siacentral/host-dashboard/daemon/persist"
 	"github.com/siacentral/host-dashboard/daemon/types"
-	"gitlab.com/NebulousLabs/Sia/modules"
 	siatypes "gitlab.com/NebulousLabs/Sia/types"
+)
+
+var (
+	blockMetaCache = make(map[uint64]blockMeta)
+	blockMetaMu    sync.Mutex
+)
+
+type (
+	blockMeta struct {
+		ID        string
+		Timestamp time.Time
+	}
 )
 
 //merges fields from the local contract db and the blockchain
 type mergedContract struct {
-	apitypes.StorageContract
-	LockedCollateral     siatypes.Currency
-	TransactionFeesAdded siatypes.Currency
-	PotentialRevenue     siatypes.Currency
+	ID                     string            `json:"id"`
+	BlockID                string            `json:"blockID"`
+	TransactionID          string            `json:"transactionID"`
+	MerkleRoot             string            `json:"merkleRoot"`
+	UnlockHash             string            `json:"unlockHash"`
+	Status                 string            `json:"status"`
+	RevisionNumber         uint64            `json:"revisionNumber"`
+	NegotiationHeight      uint64            `json:"negotiationHeight"`
+	ExpirationHeight       uint64            `json:"expirationHeight"`
+	ProofDeadline          uint64            `json:"proofDeadline"`
+	ProofHeight            uint64            `json:"proofHeight"`
+	DataSize               uint64            `json:"fileSize"`
+	ProofConfirmed         bool              `json:"proofConfirmed"`
+	NegotiationTimestamp   time.Time         `json:"negotiationTimestamp"`
+	ExpirationTimestamp    time.Time         `json:"expirationTimestamp"`
+	ProofDeadlineTimestamp time.Time         `json:"proofDeadlineTimestamp"`
+	ProofTimestamp         time.Time         `json:"proofTimestamp"`
+	Payout                 siatypes.Currency `json:"payout"`
+	LockedCollateral       siatypes.Currency `json:"lockedCollateral"`
+	PotentialRevenue       siatypes.Currency `json:"potentialRevenue"`
+	EarnedRevenue          types.BigNumber   `json:"earnedRevenue"`
+	LostRevenue            siatypes.Currency `json:"lostRevenue"`
+	BurntCollateral        siatypes.Currency `json:"burntCollateral"`
 }
 
 func syncContracts() error {
@@ -53,50 +82,130 @@ func snapshotTime(timestamp time.Time) time.Time {
 	return timestamp.UTC().Truncate(time.Hour)
 }
 
+func getSyncedHeight() (height uint64, err error) {
+	consensus, err := apiClient.ConsensusGet()
+	if err != nil {
+		return 0, fmt.Errorf("error getting consensus: %w", err)
+	}
+
+	return uint64(consensus.Height), nil
+}
+
+func getBlockMeta(height uint64) (string, time.Time, error) {
+	blockMetaMu.Lock()
+
+	defer blockMetaMu.Unlock()
+
+	if block, exists := blockMetaCache[height]; exists {
+		return block.ID, block.Timestamp, nil
+	}
+
+	block, err := apiClient.ConsensusBlocksHeightGet(siatypes.BlockHeight(height))
+	if err != nil {
+		return "", time.Time{}, fmt.Errorf("error getting block: %w", err)
+	}
+
+	blockMetaCache[height] = blockMeta{
+		ID:        block.ID.String(),
+		Timestamp: time.Unix(int64(block.Timestamp), 0),
+	}
+
+	return blockMetaCache[height].ID, blockMetaCache[height].Timestamp, nil
+}
+
 func getContracts() (contracts []mergedContract, err error) {
 	siaContracts, err := apiClient.HostContractInfoGet()
 
 	if err != nil {
-		return nil, fmt.Errorf("get sia contracts: %s", err)
+		return nil, fmt.Errorf("get sia contracts: %w", err)
+	}
+
+	currentHeight, err := getSyncedHeight()
+	if err != nil {
+		return nil, fmt.Errorf("get current height: %w", err)
 	}
 
 	if len(siaContracts.Contracts) == 0 {
 		return []mergedContract{}, nil
 	}
 
-	count := len(siaContracts.Contracts)
-	contractMap := make(map[string]modules.StorageObligation)
-
-	for i := 0; i < count; i += 1000 {
-		var contractIDs []string
-		end := i + 1000
-
-		if end > count {
-			end = count
+	for _, siaContract := range siaContracts.Contracts {
+		if !siaContract.OriginConfirmed && !siaContract.ProofConfirmed && !siaContract.RevisionConfirmed {
+			continue
 		}
 
-		for _, contract := range siaContracts.Contracts[i:end] {
-			contractIDs = append(contractIDs, contract.ObligationId.String())
-			contractMap[contract.ObligationId.String()] = contract
+		contract := mergedContract{
+			ID:                siaContract.ObligationId.String(),
+			TransactionID:     siaContract.TransactionID.String(),
+			RevisionNumber:    siaContract.RevisionNumber,
+			NegotiationHeight: uint64(siaContract.NegotiationHeight),
+			ExpirationHeight:  uint64(siaContract.ExpirationHeight),
+			ProofDeadline:     uint64(siaContract.ProofDeadLine),
+			ProofConfirmed:    siaContract.ProofConfirmed,
+			DataSize:          siaContract.DataSize,
+			LockedCollateral:  siaContract.LockedCollateral,
+			PotentialRevenue:  siaContract.ValidProofOutputs[1].Value.Sub(siaContract.LockedCollateral),
 		}
 
-		chainContracts, err := siacentralapi.FindContractsByID(contractIDs...)
+		proofRequired := siaContract.ValidProofOutputs[1].Value.Cmp(siaContract.MissedProofOutputs[1].Value) == 1
 
+		if contract.ProofConfirmed || (!proofRequired && contract.ExpirationHeight < currentHeight) {
+			contract.Status = "obligationSucceeded"
+
+			if contract.ProofConfirmed {
+				contract.Payout = siaContract.ValidProofOutputs[1].Value
+			} else {
+				contract.Payout = siaContract.MissedProofOutputs[1].Value
+			}
+
+			contract.EarnedRevenue = contract.EarnedRevenue.AddCurrency(contract.Payout).SubCurrency(contract.LockedCollateral)
+		} else if !contract.ProofConfirmed && contract.ProofDeadline < currentHeight {
+			contract.Status = "obligationFailed"
+			contract.Payout = siaContract.MissedProofOutputs[1].Value
+			contract.LostRevenue = siaContract.ValidProofOutputs[1].Value.Sub(contract.LockedCollateral)
+			contract.EarnedRevenue = contract.EarnedRevenue.AddCurrency(siaContract.MissedProofOutputs[1].Value).SubCurrency(contract.LockedCollateral)
+
+			if siaContract.MissedProofOutputs[1].Value.Cmp(contract.LockedCollateral) == -1 {
+				contract.BurntCollateral = contract.LockedCollateral.Sub(siaContract.MissedProofOutputs[1].Value)
+			}
+		} else {
+			contract.Status = "obligationUnresolved"
+			contract.Payout = siaContract.ValidProofOutputs[1].Value
+			contract.PotentialRevenue = contract.Payout.Sub(contract.LockedCollateral)
+		}
+
+		_, negotiationTimestamp, err := getBlockMeta(contract.NegotiationHeight)
 		if err != nil {
-			return nil, fmt.Errorf("get chain contracts: %s", err)
+			return nil, fmt.Errorf("get negotiation height: %w", err)
 		}
 
-		for _, contract := range chainContracts {
-			siaContract := contractMap[contract.ID]
+		contract.NegotiationTimestamp = negotiationTimestamp
 
-			contracts = append(contracts, mergedContract{
-				StorageContract:      contract,
-				LockedCollateral:     siaContract.LockedCollateral,
-				TransactionFeesAdded: siaContract.TransactionFeesAdded,
-				PotentialRevenue: siaContract.ContractCost.Add(siaContract.PotentialStorageRevenue).
-					Add(siaContract.PotentialUploadRevenue).Add(siaContract.PotentialDownloadRevenue),
-			})
+		if currentHeight < contract.ExpirationHeight {
+			hoursRemaining := time.Duration((contract.ExpirationHeight-currentHeight)/uint64(siatypes.BlocksPerHour)) * time.Hour
+			contract.ExpirationTimestamp = time.Now().Truncate(time.Hour).Add(hoursRemaining)
+		} else {
+			_, expirationTimestamp, err := getBlockMeta(contract.ExpirationHeight)
+			if err != nil {
+				return nil, fmt.Errorf("get expiration height: %w", err)
+			}
+
+			contract.ExpirationTimestamp = expirationTimestamp
 		}
+
+		if currentHeight < contract.ProofDeadline {
+			hoursRemaining := time.Duration((contract.ProofDeadline-currentHeight)/uint64(siatypes.BlocksPerHour)) * time.Hour
+			contract.ProofDeadlineTimestamp = time.Now().Truncate(time.Hour).Add(hoursRemaining)
+		} else {
+			_, proofDeadlineTimestamp, err := getBlockMeta(contract.ProofDeadline)
+			if err != nil {
+				return nil, fmt.Errorf("get negotiation height: %w", err)
+			}
+
+			contract.ProofDeadlineTimestamp = proofDeadlineTimestamp
+		}
+
+		contracts = append(contracts, contract)
 	}
 
 	return
@@ -119,24 +228,18 @@ func syncHostSnapshots(contracts []mergedContract) {
 		switch contract.Status {
 		case "obligationSucceeded":
 			var successfulID uint64
-			var payout siatypes.Currency
 
 			if contract.ProofConfirmed {
-				successfulID = snapshotID(contract.ProofTimestamp)
-				payout = contract.ValidProofOutputs[1].Value
+				successfulID = snapshotID(contract.ExpirationTimestamp)
 			} else {
 				successfulID = snapshotID(contract.ProofDeadlineTimestamp)
-				payout = contract.MissedProofOutputs[1].Value
 			}
 
 			snapshot := snapshotMap[successfulID]
 			snapshot.Timestamp = time.Unix(int64(successfulID), 0)
 			snapshot.SuccessfulContracts++
 
-			snapshot.EarnedRevenue = snapshot.EarnedRevenue.AddCurrency(payout).
-				SubCurrency(contract.LockedCollateral).
-				SubCurrency(contract.TransactionFeesAdded)
-
+			snapshot.EarnedRevenue = snapshot.EarnedRevenue.Add(contract.EarnedRevenue)
 			snapshotMap[successfulID] = snapshot
 			break
 		case "obligationFailed":
@@ -144,10 +247,8 @@ func syncHostSnapshots(contracts []mergedContract) {
 			snapshot := snapshotMap[failedID]
 
 			snapshot.FailedContracts++
-			snapshot.EarnedRevenue = snapshot.EarnedRevenue.
-				SubCurrency(contract.LockedCollateral)
-			snapshot.BurntCollateral = snapshot.BurntCollateral.
-				Add(contract.LockedCollateral)
+			snapshot.EarnedRevenue = snapshot.EarnedRevenue.Add(contract.EarnedRevenue)
+			snapshot.BurntCollateral = snapshot.BurntCollateral.Add(contract.BurntCollateral)
 			snapshot.Timestamp = time.Unix(int64(failedID), 0)
 
 			snapshotMap[failedID] = snapshot

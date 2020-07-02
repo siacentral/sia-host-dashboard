@@ -114,10 +114,14 @@ func main() {
 
 	writeLine("Starting Host Dashboard %s", build.Version)
 	writeLine("Revision: %s Build Time: %s", build.GitRevision, build.BuildTimestamp)
+	writeLine("Syncing Sia Data...")
 
+	syncStart := time.Now()
 	if err := sync.Start(siaAddr); err != nil {
 		log.Fatalf("error syncing data: %s", err)
 	}
+
+	writeLine("Data synced in %s", time.Since(syncStart))
 
 	go startAPI()
 

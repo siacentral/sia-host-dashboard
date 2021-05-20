@@ -20,7 +20,7 @@ build() {
 
 	rm -rf $folder
 	mkdir -p $folder
-	GOOS=${os} GOARCH=amd64 go build -ldflags="$buildflags" -a -trimpath -o $folder/$bin ./daemon/daemon.go
+	GOOS=${os} GOARCH=${arch} go build -ldflags="$buildflags" -a -trimpath -o $folder/$bin ./daemon/daemon.go
 }
 
 sys=(darwin linux windows)

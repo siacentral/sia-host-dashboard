@@ -91,34 +91,8 @@ func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
 	}, 200, w, r)
 }
 
-func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
-	var start, end time.Time
-
-	current := time.Now()
-	date := parseTimeParams(r, "date")[0]
-	if date.IsZero() {
-		date = current
-	}
-
-	date = date.Truncate(time.Hour).UTC()
-	start = time.Date(date.Year(), 1, 1, date.Hour(), 0, 0, 0, time.UTC)
-	end = start.AddDate(1, 0, 0)
-
-	dailySnapshots, err := persist.GetDailySnapshots(start, end)
-	if err != nil {
-		router.HandleError("unable to retrieve snapshots", 400, w, r)
-		log.Println(err)
-		return
-	}
-
-	lastMetadata, err := persist.GetLastMetadata()
-	if err != nil {
-		router.HandleError("unable to retrieve metadata", 400, w, r)
-		log.Println(err)
-		return
-	}
-
-	resp := hostTotalResponse{
+func buildTotalResponse(start, end, date time.Time, lastMetadata types.HostMeta) hostTotalResponse {
+	return hostTotalResponse{
 		hostResponse: hostResponse{
 			APIResponse: router.APIResponse{
 				Message: "successfully retrieved totals",
@@ -147,9 +121,37 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 			Timestamp:           lastMetadata.Timestamp,
 		},
 	}
+}
 
+func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
+	var start, end time.Time
+
+	current := time.Now()
+	date := parseTimeParams(r, "date")[0]
+	if date.IsZero() {
+		date = current
+	}
+
+	date = date.Truncate(time.Hour).UTC()
+	start = time.Date(date.Year(), 1, 1, date.Hour(), 0, 0, 0, time.UTC)
+	end = start.AddDate(1, 0, 0)
+
+	dailySnapshots, err := persist.GetDailySnapshots(start, end)
+	if err != nil {
+		router.HandleError("unable to retrieve snapshots", 400, w, r)
+		log.Println(err)
+		return
+	}
+
+	lastMetadata, err := persist.GetLastMetadata()
+	if err != nil {
+		router.HandleError("unable to retrieve metadata", 400, w, r)
+		log.Println(err)
+		return
+	}
+
+	resp := buildTotalResponse(start, end, date, lastMetadata)
 	dy, dm, _ := date.Date()
-
 	for _, snapshot := range dailySnapshots {
 		sy, sm, _ := snapshot.Timestamp.Date()
 

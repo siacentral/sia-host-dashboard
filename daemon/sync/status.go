@@ -3,9 +3,11 @@ package sync
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/siacentral/sia-host-dashboard/daemon/cache"
 	"github.com/siacentral/sia-host-dashboard/daemon/types"
+	"gitlab.com/NebulousLabs/Sia/node/api"
 	siatypes "gitlab.com/NebulousLabs/Sia/types"
 )
 
@@ -149,9 +151,30 @@ func syncHostConnectivity() error {
 	return nil
 }
 
-func syncHostStatus() error {
-	status := types.HostStatus{}
+func buildStatus(host api.HostGET, wallet api.WalletGET, start time.Time, up, down uint64) types.HostStatus {
+	return types.HostStatus{
+		HostMeta: types.HostMeta{
+			UploadBandwidth:   up,
+			DownloadBandwidth: down,
+			Settings: types.HostSettings{
+				BaseRPCPrice:           host.ExternalSettings.BaseRPCPrice,
+				SectorAccessPrice:      host.ExternalSettings.SectorAccessPrice,
+				Collateral:             host.ExternalSettings.Collateral,
+				MaxCollateral:          host.ExternalSettings.MaxCollateral,
+				ContractPrice:          host.ExternalSettings.ContractPrice,
+				DownloadBandwidthPrice: host.ExternalSettings.DownloadBandwidthPrice,
+				StoragePrice:           host.ExternalSettings.StoragePrice,
+				UploadBandwidthPrice:   host.ExternalSettings.UploadBandwidthPrice,
+			},
+		},
+		AcceptingContracts: host.InternalSettings.AcceptingContracts,
+		Version:            host.ExternalSettings.Version,
+		WalletUnlocked:     wallet.Unlocked,
+		StartTime:          start,
+	}
+}
 
+func syncHostStatus() error {
 	host, err := apiClient.HostGet()
 
 	cache.ClearAlerts(AlertSyncError)
@@ -187,6 +210,9 @@ func syncHostStatus() error {
 		return fmt.Errorf("get wallet: %w", err)
 	}
 
+	up, down := getBandwidthUsage()
+	status := buildStatus(host, wallet, gbw.StartTime, up, down)
+
 	if err := syncStorageStatus(&status); err != nil {
 		cache.AddAlert(AlertSyncError, types.HostAlert{
 			Severity: "severe",
@@ -195,24 +221,6 @@ func syncHostStatus() error {
 		})
 		return fmt.Errorf("get storage folders: %w", err)
 	}
-
-	up, down := getBandwidthUsage()
-
-	status.AcceptingContracts = host.InternalSettings.AcceptingContracts
-	status.Version = host.ExternalSettings.Version
-	status.WalletUnlocked = wallet.Unlocked
-	status.UploadBandwidth = up
-	status.DownloadBandwidth = down
-	status.StartTime = gbw.StartTime
-
-	status.Settings.BaseRPCPrice = host.ExternalSettings.BaseRPCPrice
-	status.Settings.SectorAccessPrice = host.ExternalSettings.SectorAccessPrice
-	status.Settings.Collateral = host.ExternalSettings.Collateral
-	status.Settings.MaxCollateral = host.ExternalSettings.MaxCollateral
-	status.Settings.ContractPrice = host.ExternalSettings.ContractPrice
-	status.Settings.DownloadBandwidthPrice = host.ExternalSettings.DownloadBandwidthPrice
-	status.Settings.StoragePrice = host.ExternalSettings.StoragePrice
-	status.Settings.UploadBandwidthPrice = host.ExternalSettings.UploadBandwidthPrice
 
 	cache.ClearAlerts(AlertWalletLocked, AlertWalletBalance, AlertCollateralBudget)
 

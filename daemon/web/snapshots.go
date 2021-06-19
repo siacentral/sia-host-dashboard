@@ -134,7 +134,7 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 			Timestamp: date,
 		},
 		Year: types.HostSnapshot{
-			Timestamp: end,
+			Timestamp: date,
 		},
 		Total: types.HostSnapshot{
 			ActiveContracts:     lastMetadata.ActiveContracts,

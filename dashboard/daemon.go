@@ -14,12 +14,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/siacentral/sia-host-dashboard/daemon/build"
-	"github.com/siacentral/sia-host-dashboard/daemon/cmd"
-	"github.com/siacentral/sia-host-dashboard/daemon/persist"
-	"github.com/siacentral/sia-host-dashboard/daemon/sync"
-	"github.com/siacentral/sia-host-dashboard/daemon/web"
-	"github.com/siacentral/sia-host-dashboard/daemon/web/router"
+	"github.com/siacentral/sia-host-dashboard/dashboard/build"
+	"github.com/siacentral/sia-host-dashboard/dashboard/cmd"
+	"github.com/siacentral/sia-host-dashboard/dashboard/persist"
+	"github.com/siacentral/sia-host-dashboard/dashboard/sync"
+	"github.com/siacentral/sia-host-dashboard/dashboard/web"
+	"github.com/siacentral/sia-host-dashboard/dashboard/web/router"
 )
 
 var (

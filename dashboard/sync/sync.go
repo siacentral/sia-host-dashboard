@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/siacentral/sia-host-dashboard/daemon/persist"
+	"github.com/siacentral/sia-host-dashboard/dashboard/persist"
 	siaapi "gitlab.com/NebulousLabs/Sia/node/api/client"
 )
 
 var (
-	apiClient   *siaapi.Client
+	apiClient   *siaapi.UnsafeClient
 	counters    *bandwidthCounters
 	bandwidthMu sync.Mutex
 )
@@ -128,12 +128,12 @@ func initBandwidthCounters() {
 
 //Start begins syncing data from Sia
 func Start(siaAddr string) error {
-	apiClient = &siaapi.Client{
+	apiClient = siaapi.NewUnsafeClient(siaapi.Client{
 		Options: siaapi.Options{
 			Address:   siaAddr,
 			UserAgent: "Sia-Agent",
 		},
-	}
+	})
 
 	initBandwidthCounters()
 

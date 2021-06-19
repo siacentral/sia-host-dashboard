@@ -27,10 +27,10 @@ build-web: install-dependencies
 	npm run build
 
 run: build-web
-	go run daemon/daemon.go --data-path $(PWD)/data
+	go run ./dashboard --data-path ./data
 
 static:
-	CGO_ENABLED=0 go build -trimpath -ldflags="-X 'github.com/siacentral/sia-host-dashboard/daemon/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/sia-host-dashboard/daemon/build.buildTime=${BUILD_TIME}' -s -w" -tags='netgo timetzdata'  -o ./bin/dashboard ./daemon
+	CGO_ENABLED=0 go build -trimpath -ldflags="-X 'github.com/siacentral/sia-host-dashboard/dashboard/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/sia-host-dashboard/dashboard/build.buildTime=${BUILD_TIME}' -s -w" -tags='netgo timetzdata' -o bin/ ./dashboard
 
 release: build-web
 	./release.sh

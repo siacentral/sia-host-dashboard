@@ -3,7 +3,7 @@ package cache
 import (
 	"sync"
 
-	"github.com/siacentral/sia-host-dashboard/daemon/types"
+	"github.com/siacentral/sia-host-dashboard/dashboard/types"
 )
 
 var (

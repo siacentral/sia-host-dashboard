@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/siacentral/sia-host-dashboard/daemon/cache"
-	"github.com/siacentral/sia-host-dashboard/daemon/persist"
-	"github.com/siacentral/sia-host-dashboard/daemon/types"
-	"github.com/siacentral/sia-host-dashboard/daemon/web/router"
+	"github.com/siacentral/sia-host-dashboard/dashboard/cache"
+	"github.com/siacentral/sia-host-dashboard/dashboard/persist"
+	"github.com/siacentral/sia-host-dashboard/dashboard/types"
+	"github.com/siacentral/sia-host-dashboard/dashboard/web/router"
 )
 
 type (

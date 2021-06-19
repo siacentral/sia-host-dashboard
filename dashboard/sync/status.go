@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/siacentral/sia-host-dashboard/daemon/cache"
-	"github.com/siacentral/sia-host-dashboard/daemon/types"
+	"github.com/siacentral/sia-host-dashboard/dashboard/cache"
+	"github.com/siacentral/sia-host-dashboard/dashboard/types"
 	"gitlab.com/NebulousLabs/Sia/node/api"
 	siatypes "gitlab.com/NebulousLabs/Sia/types"
 )

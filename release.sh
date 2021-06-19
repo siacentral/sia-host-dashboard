@@ -18,7 +18,7 @@ build() {
 	rm -rf $folder $archive
 	mkdir -p $folder
 	GOOS=${os} GOARCH=${arch} make static
-	mv bin/dashboard $folder/$bin
+	mv bin/$bin $folder/$bin
 	zip $archive -j $folder/$bin
 	rm -rf $folder
 }

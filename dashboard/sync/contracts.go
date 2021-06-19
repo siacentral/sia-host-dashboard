@@ -3,12 +3,14 @@ package sync
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"sync"
 	"time"
 
-	"github.com/siacentral/sia-host-dashboard/daemon/cache"
-	"github.com/siacentral/sia-host-dashboard/daemon/persist"
-	"github.com/siacentral/sia-host-dashboard/daemon/types"
+	"github.com/siacentral/sia-host-dashboard/dashboard/cache"
+	"github.com/siacentral/sia-host-dashboard/dashboard/persist"
+	"github.com/siacentral/sia-host-dashboard/dashboard/types"
+	"gitlab.com/NebulousLabs/Sia/node/api"
 	siatypes "gitlab.com/NebulousLabs/Sia/types"
 )
 
@@ -97,6 +99,12 @@ func getSyncedHeight() (height uint64, err error) {
 	return uint64(consensus.Height), nil
 }
 
+func txnConfirmed(id siatypes.TransactionID) (bool, error) {
+	var resp api.TpoolConfirmedGET
+	err := apiClient.Get("/tpool/confirmed/"+url.PathEscape(id.String()), &resp)
+	return resp.Confirmed, err
+}
+
 func getBlockMeta(height uint64) (time.Time, error) {
 	blockMetaMu.Lock()
 
@@ -136,7 +144,11 @@ func getContracts() (contracts []mergedContract, err error) {
 	}
 
 	for _, siaContract := range siaContracts.Contracts {
-		if !siaContract.OriginConfirmed && !siaContract.ProofConfirmed && !siaContract.RevisionConfirmed {
+		confirmed, err := txnConfirmed(siaContract.TransactionID)
+		if err != nil {
+			return nil, fmt.Errorf("unable to check confirmed txn %s for contract %s: %w", siaContract.TransactionID, siaContract.ObligationId, err)
+		}
+		if !confirmed {
 			continue
 		}
 

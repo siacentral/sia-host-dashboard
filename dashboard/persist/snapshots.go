@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/siacentral/sia-host-dashboard/daemon/types"
+	"github.com/siacentral/sia-host-dashboard/dashboard/types"
 	"gitlab.com/NebulousLabs/bolt"
 )
 

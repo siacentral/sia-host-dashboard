@@ -141,19 +141,13 @@ func Start(siaAddr string) error {
 		return fmt.Errorf("refreshing contracts: %w", err)
 	}
 
-	log.Println("synced contracts")
-
 	if err := syncHostConnectivity(); err != nil {
 		log.Println(fmt.Errorf("refreshing connectivity: %w", err))
 	}
 
-	log.Println("synced conn")
-
 	if err := syncHostStatus(); err != nil {
 		return fmt.Errorf("refreshing status: %w", err)
 	}
-
-	log.Println("synced status")
 
 	go refreshContracts()
 	go refreshStatus()

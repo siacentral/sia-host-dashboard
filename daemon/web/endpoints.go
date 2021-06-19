@@ -1,6 +1,6 @@
 package web
 
-import "github.com/siacentral/host-dashboard/daemon/web/router"
+import "github.com/siacentral/sia-host-dashboard/daemon/web/router"
 
 var endpoints = []router.APIEndpoint{
 	{

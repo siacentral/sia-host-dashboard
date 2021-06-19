@@ -39,7 +39,7 @@
 			</div>
 		</div>
 		<div class="extra-links">
-			<a target="_blank" href="https://github.com/siacentral/host-dashboard"><icon :icon="['fab', 'github']" /></a>
+			<a target="_blank" href="https://github.com/siacentral/sia-host-dashboard"><icon :icon="['fab', 'github']" /></a>
 			<a target="_blank" href="https://siacentral.com"><sia-central /></a>
 			<a target="_blank" href="https://sia.tech"><built-with-sia /></a>
 		</div>

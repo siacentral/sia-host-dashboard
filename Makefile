@@ -28,7 +28,7 @@ run: lint-web lint-daemon build-web
 	go run daemon/daemon.go --data-path $(PWD)/data
 
 static: 
-	go build -trimpath -ldflags="-X 'github.com/siacentral/host-dashboard/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/host-dashboard/build.buildTime=${BUILD_TIME}' -buildid='' -s -w -extldflags '-static'" -tags='netgo timetzdata'  -o ./bin/dashboard ./daemon
+	CGO_ENABLED=0 go build -trimpath -ldflags="-X 'github.com/siacentral/sia-host-dashboard/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/sia-host-dashboard/build.buildTime=${BUILD_TIME}' -buildid='' -s -w -extldflags '-static'" -tags='netgo timetzdata'  -o ./bin/dashboard ./daemon
 
 release: lint-web lint-daemon build-web
 	./release.sh

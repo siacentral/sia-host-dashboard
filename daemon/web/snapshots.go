@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/siacentral/host-dashboard/daemon/persist"
-	"github.com/siacentral/host-dashboard/daemon/types"
-	"github.com/siacentral/host-dashboard/daemon/web/router"
+	"github.com/siacentral/sia-host-dashboard/daemon/persist"
+	"github.com/siacentral/sia-host-dashboard/daemon/types"
+	"github.com/siacentral/sia-host-dashboard/daemon/web/router"
 )
 
 type (

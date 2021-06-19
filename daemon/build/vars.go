@@ -4,7 +4,7 @@ import "time"
 
 const (
 	// Version the current version of the dashboard
-	Version = "v0.1.0"
+	Version = "v0.2.0"
 )
 
 var (

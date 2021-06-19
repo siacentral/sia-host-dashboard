@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/siacentral/host-dashboard/daemon/persist"
+	"github.com/siacentral/sia-host-dashboard/daemon/persist"
 	siaapi "gitlab.com/NebulousLabs/Sia/node/api/client"
 )
 

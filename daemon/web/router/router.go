@@ -11,7 +11,7 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/siacentral/host-dashboard/web"
+	"github.com/siacentral/sia-host-dashboard/web"
 )
 
 var (

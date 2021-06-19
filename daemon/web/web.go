@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/siacentral/host-dashboard/daemon/web/router"
+	"github.com/siacentral/sia-host-dashboard/daemon/web/router"
 )
 
 var (

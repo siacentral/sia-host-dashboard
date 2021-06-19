@@ -1,4 +1,4 @@
-module github.com/siacentral/host-dashboard
+module github.com/siacentral/sia-host-dashboard
 
 go 1.16
 
@@ -9,5 +9,4 @@ require (
 	github.com/siacentral/apisdkgo v0.0.0-20210308041457-e03f9fadd643
 	gitlab.com/NebulousLabs/Sia v1.5.6
 	gitlab.com/NebulousLabs/bolt v1.4.4
-	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 )

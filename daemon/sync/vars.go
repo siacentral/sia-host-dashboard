@@ -1,6 +1,6 @@
 package sync
 
-import "github.com/siacentral/host-dashboard/daemon/types"
+import "github.com/siacentral/sia-host-dashboard/daemon/types"
 
 var (
 	// AlertSyncError alerts the user there was an issue syncing the status

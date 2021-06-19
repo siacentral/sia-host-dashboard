@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/siacentral/apisdkgo"
-	"github.com/siacentral/host-dashboard/daemon/cache"
-	"github.com/siacentral/host-dashboard/daemon/persist"
-	"github.com/siacentral/host-dashboard/daemon/types"
+	"github.com/siacentral/sia-host-dashboard/daemon/cache"
+	"github.com/siacentral/sia-host-dashboard/daemon/persist"
+	"github.com/siacentral/sia-host-dashboard/daemon/types"
 )
 
 var siacentralapi = apisdkgo.NewSiaClient()

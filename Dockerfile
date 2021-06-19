@@ -20,12 +20,14 @@ COPY . .
 COPY --from=buildnode /web/dist web/dist
 
 RUN apk -U --no-cache add upx git gcc make \
+	&& update-ca-certificates \
 	&& make static \
 	&& upx /app/bin/dashboard
 
 # production
 FROM scratch
 
+COPY --from=buildgo /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=buildgo /app/bin/dashboard /
 
 ENV SIA_API_ADDR="localhost:9980"

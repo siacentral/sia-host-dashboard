@@ -117,7 +117,7 @@ func main() {
 	cmd.StartedInExplorer()
 
 	writeLine("Starting Host Dashboard %s", build.Version)
-	writeLine("Revision: %s Build Time: %s", build.Revision(), build.Time())
+	writeLine("Revision: %s Build Time: %s", build.Revision(), build.Time().Format(time.RFC1123))
 	writeLine("Syncing Sia Data...")
 
 	syncStart := time.Now()

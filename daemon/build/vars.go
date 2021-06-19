@@ -28,7 +28,7 @@ var (
 		for _, layout := range timeFormats {
 			time, err := time.Parse(layout, buildTime)
 			if err == nil {
-				return time
+				return time.Local()
 			}
 		}
 

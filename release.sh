@@ -2,14 +2,11 @@
 
 set -e
 
-buildtime=$(git show -s --format=%ci HEAD)
-gitrevision=$(git rev-parse --short HEAD)
-buildflags="-X 'github.com/siacentral/sia-host-dashboard/daemon/build.GitRevision=$gitrevision' -X 'github.com/siacentral/sia-host-dashboard/daemon/build.BuildTimestamp=$buildtime'"
-
 build() {
 	os=$1
 	arch=$2
 	folder=./releases/dashboard-$os-$arch
+	archive=./releases/dashboard-$os-$arch.zip
 	bin=dashboard
 
 	if [ "$os" == "windows" ]; then
@@ -18,9 +15,12 @@ build() {
 
 	echo "Building $os $arch..."
 
-	rm -rf $folder
+	rm -rf $folder $archive
 	mkdir -p $folder
-	GOOS=${os} GOARCH=${arch} go build -ldflags="$buildflags" -a -trimpath -o $folder/$bin ./daemon/daemon.go
+	GOOS=${os} GOARCH=${arch} make static
+	mv bin/dashboard $folder/$bin
+	zip $archive -j $folder/$bin
+	rm -rf $folder
 }
 
 sys=(darwin linux windows)
@@ -35,7 +35,7 @@ fi
 for os in ${sys[@]}; do
 	build $os amd64
 
-	if [ "$os" == "linux" ]; then
-		build linux arm64
+	if [ "$os" = "linux" ] || [ "$os" = "darwin" ]; then
+		build $os arm64
 	fi
 done

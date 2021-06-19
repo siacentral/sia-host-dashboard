@@ -17,7 +17,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-- uses: crazy-max/ghaction-docker-meta@ae431178c17085afd420fdf7ca88b37bd32e3d7d
+      - uses: crazy-max/ghaction-docker-meta@ae431178c17085afd420fdf7ca88b37bd32e3d7d
         name: generate tags
         id: meta
         with:

@@ -10,7 +10,6 @@ all: release
 
 lint-web:
 	cd web && \
-	npm i && \
 	npm run lint -- --fix
 
 lint-daemon:
@@ -18,13 +17,16 @@ lint-daemon:
 
 lint: lint-web lint-daemon
 
-build-web:
+install-dependencies:
 	cd web && \
-	rm -rf node_modules dist && \
-	npm i && \
+	npm i
+
+build-web: install-depencencies
+	cd web && \
+	rm -rf dist && \
 	npm run build
 
-run: lint-web lint-daemon build-web
+run: build-web
 	go run daemon/daemon.go --data-path $(PWD)/data
 
 static: 

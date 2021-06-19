@@ -1,7 +1,8 @@
 name: Publish
 on:
-  # Triggers the workflow on new SemVer tags
   push:
+    branches:
+      - 'master'
     tags: 
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
@@ -17,12 +18,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: crazy-max/ghaction-docker-meta@ae431178c17085afd420fdf7ca88b37bd32e3d7d
+      - uses: docker/metadata-action@v3
         name: generate tags
         id: meta
         with:
           images: siacentral/host-dashboard
           tags: |
+            type=ref,event=branch
             type=semver,pattern={{version}}
       - uses: docker/build-push-action@v2
         with:

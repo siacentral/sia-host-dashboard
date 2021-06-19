@@ -18,9 +18,6 @@ export default {
 	props: {
 		alerts: Array
 	},
-	mounted() {
-		console.log(this.alerts);
-	},
 	methods: {
 		alertIcon(type) {
 			if (typeof type !== 'string')

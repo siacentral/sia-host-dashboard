@@ -24,7 +24,9 @@ func SaveHostSnapshots(snapshots ...types.HostSnapshot) error {
 				return fmt.Errorf("json encode: %w", err)
 			}
 
-			bucket.Put(timeID(snapshot.Timestamp), buf)
+			if err := bucket.Put(timeID(snapshot.Timestamp), buf); err != nil {
+				return fmt.Errorf("unable to put snapshot: %w", err)
+			}
 		}
 
 		return nil
@@ -97,8 +99,8 @@ func GetDailySnapshots(start, end time.Time) (snapshots []types.HostSnapshot, er
 				continue
 			}
 
-			if err = json.Unmarshal(buf, &snapshot); err != nil {
-				return err
+			if err := json.Unmarshal(buf, &snapshot); err != nil {
+				return fmt.Errorf("unable to decode snaphot: %w", err)
 			}
 
 			snapshots[i].ActiveContracts = snapshot.ActiveContracts

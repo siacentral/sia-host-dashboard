@@ -11,7 +11,7 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/siacentral/host-dashboard/daemon/assets"
+	"github.com/siacentral/host-dashboard/web"
 )
 
 var (
@@ -35,13 +35,6 @@ func (router *APIRouter) AddMiddleware(middleware MiddlewareFunc) {
 	router.middleware = append(router.middleware, middleware)
 }
 
-func defaultHandler(w http.ResponseWriter, r *APIRequest) {
-	SendJSONResponse(APIResponse{
-		Message: "endpoint not found",
-		Type:    "error",
-	}, 404, w, r)
-}
-
 //ListenAndServe starts the router listening for connections
 func (router *APIRouter) ListenAndServe() error {
 	var handler http.Handler
@@ -51,7 +44,7 @@ func (router *APIRouter) ListenAndServe() error {
 
 	r.Path("/favicon.ico").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
-		w.Write([]byte{})
+		_, _ = w.Write([]byte{})
 	})
 
 	for _, endpoint := range router.endpoints {
@@ -59,7 +52,7 @@ func (router *APIRouter) ListenAndServe() error {
 			Name(endpoint.Name).Handler(router.attachMiddleware(endpoint))
 	}
 
-	r.PathPrefix("/").Handler(http.FileServer(assets.Web))
+	r.PathPrefix("/").Handler(http.FileServer(web.Assets))
 
 	if router.options.CORS.Enabled {
 		handler = handlers.CORS(handlers.AllowedHeaders(router.options.CORS.Headers),
@@ -83,7 +76,7 @@ func (router *APIRouter) ListenAndServe() error {
 		ReadTimeout:  60 * time.Second,
 	}
 
-	if err := router.server.Serve(l); err != nil && err != http.ErrServerClosed {
+	if err := router.server.Serve(l); err != nil && errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 
@@ -104,7 +97,7 @@ func chainMiddleware(router *APIRouter, endpoint APIEndpoint, middleware ...Midd
 		return endpoint.Handler
 	}
 
-	return middleware[0](router, endpoint, chainMiddleware(router, endpoint, middleware[1:len(middleware)]...))
+	return middleware[0](router, endpoint, chainMiddleware(router, endpoint, middleware[1:]...))
 }
 
 func (router *APIRouter) attachMiddleware(endpoint APIEndpoint) http.Handler {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	siacentralapi "github.com/siacentral/apisdkgo"
 	"github.com/siacentral/host-dashboard/daemon/cache"
 	"github.com/siacentral/host-dashboard/daemon/types"
 	siatypes "gitlab.com/NebulousLabs/Sia/types"
@@ -109,7 +108,7 @@ func syncHostConnectivity() error {
 	if err != nil {
 		cache.AddAlert(AlertSyncError, types.HostAlert{
 			Severity: "severe",
-			Text:     fmt.Sprintf("Unable to check host connectivity"),
+			Text:     "Unable to check host connectivity",
 			Type:     "sync",
 		})
 		return fmt.Errorf("sia api get failed: %w", err)
@@ -122,7 +121,7 @@ func syncHostConnectivity() error {
 	if len(netaddress) == 0 {
 		cache.AddAlert(AlertSyncError, types.HostAlert{
 			Severity: "severe",
-			Text:     fmt.Sprintf("Unable to check host connectivity"),
+			Text:     "Unable to check host connectivity",
 			Type:     "sync",
 		})
 		return fmt.Errorf("unable to netaddress")

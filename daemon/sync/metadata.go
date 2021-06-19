@@ -5,11 +5,13 @@ import (
 	"log"
 	"time"
 
-	siacentralapi "github.com/siacentral/apisdkgo"
+	"github.com/siacentral/apisdkgo"
 	"github.com/siacentral/host-dashboard/daemon/cache"
 	"github.com/siacentral/host-dashboard/daemon/persist"
 	"github.com/siacentral/host-dashboard/daemon/types"
 )
+
+var siacentralapi = apisdkgo.NewSiaClient()
 
 func calcHostContracts(contracts []mergedContract, meta *types.HostMeta) {
 	for _, contract := range contracts {
@@ -18,16 +20,13 @@ func calcHostContracts(contracts []mergedContract, meta *types.HostMeta) {
 		meta.BurntCollateral = meta.BurntCollateral.Add(contract.BurntCollateral)
 
 		switch contract.Status {
-		case "obligationSucceeded":
+		case contractStatusSucceeded:
 			meta.SuccessfulContracts++
-			break
-		case "obligationFailed":
+		case contractStatusFailed:
 			meta.FailedContracts++
-			break
-		case "obligationUnresolved":
+		case contractStatusUnresolved:
 			meta.PotentialRevenue = meta.PotentialRevenue.Add(contract.PotentialRevenue)
 			meta.ActiveContracts++
-			break
 		}
 	}
 }
@@ -89,8 +88,5 @@ func syncHostMeta(contracts []mergedContract) {
 
 	if err := persist.SaveHostMeta(meta); err != nil {
 		log.Printf("sync error: save meta: %s", err)
-		return
 	}
-
-	return
 }

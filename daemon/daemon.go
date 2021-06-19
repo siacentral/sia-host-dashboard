@@ -33,7 +33,7 @@ var (
 
 func writeLine(format string, args ...interface{}) {
 	if !logStdOut {
-		os.Stdout.WriteString(fmt.Sprintf(format, args...) + "\n")
+		_, _ = os.Stdout.WriteString(fmt.Sprintf(format, args...) + "\n")
 	}
 
 	log.Printf(format, args...)
@@ -46,12 +46,16 @@ func init() {
 
 	flag.StringVar(&dataPath, "data-path", "data", "the data path to use")
 	flag.StringVar(&listenAddr, "listen-addr", ":8884", "the address to listen on, defaults to :8884")
-	flag.StringVar(&siaAddr, "sia-api-addr", "localhost:9980", "the url used to connect to Sia. Defaults to \"localhost:9980\"")
+	flag.StringVar(&siaAddr, "sia-api-addr", os.Getenv("SIA_API_ADDR"), "the url used to connect to Sia. Defaults to \"localhost:9980\"")
 	flag.BoolVar(&disableCors, "disable-cors", false, "disables cross-origin requests, prevents cross-origin browser requests to the API")
 	flag.BoolVar(&logStdOut, "std-out", false, "sends output to stdout instead of the log file")
 	flag.Parse()
 
-	if err := os.MkdirAll(dataPath, 0770); err != nil && !os.IsExist(err) {
+	if len(siaAddr) == 0 {
+		siaAddr = "localhost:9980"
+	}
+
+	if err := os.MkdirAll(dataPath, 0750); err != nil && !os.IsExist(err) {
 		log.Fatalf("error creating directory: %s", err)
 	}
 
@@ -63,7 +67,7 @@ func init() {
 		return
 	}
 
-	logFile, err = os.OpenFile(filepath.Join(dataPath, "log.log"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	logFile, err = os.OpenFile(filepath.Join(dataPath, "log.log"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 
 	if err != nil {
 		log.Fatalf("error opening log: %s", err)
@@ -113,7 +117,7 @@ func main() {
 	cmd.StartedInExplorer()
 
 	writeLine("Starting Host Dashboard %s", build.Version)
-	writeLine("Revision: %s Build Time: %s", build.GitRevision, build.BuildTimestamp)
+	writeLine("Revision: %s Build Time: %s", build.Revision(), build.Time())
 	writeLine("Syncing Sia Data...")
 
 	syncStart := time.Now()
@@ -137,28 +141,26 @@ func main() {
 
 	sigChan := make(chan os.Signal, 1)
 
-	signal.Notify(sigChan, os.Interrupt, os.Kill, syscall.SIGTERM)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
 	<-sigChan
 
 	writeLine("Shutting down")
 
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*5)
-
 	defer cancelFunc()
 
 	if err := web.Shutdown(ctx); err != nil {
-		log.Fatalln(err)
+		log.Println("unable to shutdown web:", err)
 	}
 
 	if err := persist.CloseDB(); err != nil {
-		log.Fatalln(err)
+		log.Println("unable to close db:", err)
 	}
 
 	if logFile != nil {
 		if err := logFile.Close(); err != nil {
-			writeLine("closing log: %s", err)
-			os.Exit(1)
+			log.Println("unable to close log:", err)
 		}
 	}
 }

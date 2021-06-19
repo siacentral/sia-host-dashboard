@@ -1,12 +1,13 @@
 module github.com/siacentral/host-dashboard
 
-go 1.13
+go 1.16
 
 require (
-	github.com/gorilla/handlers v1.4.2
-	github.com/gorilla/mux v1.7.4
+	github.com/gorilla/handlers v1.5.1
+	github.com/gorilla/mux v1.8.0
 	github.com/inconshreveable/mousetrap v1.0.0
-	github.com/siacentral/apisdkgo v0.0.0-20200519014622-e4ad2522209c
+	github.com/siacentral/apisdkgo v0.0.0-20210308041457-e03f9fadd643
 	gitlab.com/NebulousLabs/Sia v1.5.6
 	gitlab.com/NebulousLabs/bolt v1.4.4
+	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 )

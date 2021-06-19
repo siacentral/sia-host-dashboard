@@ -18,11 +18,6 @@ type (
 		End   time.Time `json:"end"`
 	}
 
-	hostMetaResponse struct {
-		hostResponse
-		Metadata []types.HostMeta `json:"metadata"`
-	}
-
 	hostSnapshotResponse struct {
 		hostResponse
 		Snapshots []types.HostSnapshot `json:"snapshots"`
@@ -37,36 +32,28 @@ type (
 	}
 )
 
-func parseTimeParams(params ...string) ([]time.Time, error) {
-	timestamps := []time.Time{}
-
+func parseTimeParams(r *router.APIRequest, params ...string) (timestamps []time.Time) {
 	for _, param := range params {
 		if len(param) == 0 {
 			timestamps = append(timestamps, time.Time{})
 			continue
 		}
 
-		seconds, err := strconv.ParseInt(param, 10, 64)
+		seconds, err := strconv.ParseInt(r.Request.URL.Query().Get(param), 10, 64)
 
 		if err != nil {
-			return []time.Time{}, err
+			timestamps = append(timestamps, time.Time{})
+			continue
 		}
 
 		timestamps = append(timestamps, time.Unix(seconds, 0).UTC())
 	}
 
-	return timestamps, nil
+	return
 }
 
 func handleGetHostSnapshots(w http.ResponseWriter, r *router.APIRequest) {
-	timestamps, err := parseTimeParams(r.Request.URL.Query().Get("end"))
-
-	if err != nil {
-		router.HandleError("unable to parse start or end time", 400, w, r)
-		return
-	}
-
-	date := timestamps[0]
+	date := parseTimeParams(r, "end")[0]
 	if date.IsZero() {
 		date = time.Now().UTC()
 	}
@@ -108,15 +95,7 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 	var start, end time.Time
 
 	current := time.Now()
-	timestamps, err := parseTimeParams(r.Request.URL.Query().Get("date"))
-
-	if err != nil {
-		router.HandleError("unable to parse unix timestamp", 400, w, r)
-		return
-	}
-
-	date := timestamps[0]
-
+	date := parseTimeParams(r, "date")[0]
 	if date.IsZero() {
 		date = current
 	}
@@ -155,7 +134,7 @@ func handleGetHostTotals(w http.ResponseWriter, r *router.APIRequest) {
 			Timestamp: date,
 		},
 		Year: types.HostSnapshot{
-			Timestamp: start,
+			Timestamp: end,
 		},
 		Total: types.HostSnapshot{
 			ActiveContracts:     lastMetadata.ActiveContracts,

@@ -3,9 +3,6 @@ package sync
 import (
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
-	"runtime"
 	"sync"
 	"time"
 
@@ -24,23 +21,6 @@ type bandwidthCounters struct {
 	lastDownload  uint64
 	totalUpload   uint64
 	totalDownload uint64
-}
-
-// defaultSiaDir returns the default data directory of siad. The values for
-// supported operating systems are:
-//
-// Linux:   $HOME/.sia
-// MacOS:   $HOME/Library/Application Support/Sia
-// Windows: %LOCALAPPDATA%\Sia
-func defaultSiaDir() string {
-	switch runtime.GOOS {
-	case "windows":
-		return filepath.Join(os.Getenv("LOCALAPPDATA"), "Sia")
-	case "darwin":
-		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Sia")
-	default:
-		return filepath.Join(os.Getenv("HOME"), ".sia")
-	}
 }
 
 func waitInterval(d time.Duration) {
@@ -161,13 +141,19 @@ func Start(siaAddr string) error {
 		return fmt.Errorf("refreshing contracts: %w", err)
 	}
 
+	log.Println("synced contracts")
+
 	if err := syncHostConnectivity(); err != nil {
 		log.Println(fmt.Errorf("refreshing connectivity: %w", err))
 	}
 
+	log.Println("synced conn")
+
 	if err := syncHostStatus(); err != nil {
 		return fmt.Errorf("refreshing status: %w", err)
 	}
+
+	log.Println("synced status")
 
 	go refreshContracts()
 	go refreshStatus()

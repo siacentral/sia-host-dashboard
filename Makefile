@@ -1,35 +1,36 @@
-all: release
+ifeq "$(shell git status --porcelain=v1 2>/dev/null)" "" 
+GIT_REVISION=$(shell git rev-parse --short HEAD)
+BUILD_TIME=$(shell git show -s --format=%ci HEAD)
+else
+GIT_REVISION="$(shell git rev-parse --short HEAD)-devel"
+BUILD_TIME=$(shell date)
+endif
 
-install-dependencies: 
-	cd web && \
-	rm -rf node_modules && \
-	npm i
+all: release
 
 lint-web:
 	cd web && \
+	npm i && \
 	npm run lint -- --fix
 
 lint-daemon:
-	go get golang.org/x/lint/golint && \
-	golint -min_confidence=1.0 -set_exit_status daemon/daemon.go
+	golangci-lint run
 
 lint: lint-web lint-daemon
 
-pack:
+build-web:
 	cd web && \
 	rm -rf node_modules dist && \
 	npm i && \
-	npm run build && \
-	cd .. && \
-	go run generate/assets_generate.go ./web/dist
+	npm run build
 
-run: install-dependencies lint-web lint-daemon pack
+run: lint-web lint-daemon build-web
 	go run daemon/daemon.go --data-path $(PWD)/data
 
-build: install-dependencies lint-web lint-daemon pack
-	./release.sh $(GOHOSTOS) $(GOHOSTARCH)
+static: 
+	go build -trimpath -ldflags="-X 'github.com/siacentral/host-dashboard/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/host-dashboard/build.buildTime=${BUILD_TIME}' -buildid='' -s -w -extldflags '-static'" -tags='netgo timetzdata'  -o ./bin/dashboard ./daemon
 
-release: install-dependencies lint-web lint-daemon pack
+release: lint-web lint-daemon build-web
 	./release.sh
 
 docker:

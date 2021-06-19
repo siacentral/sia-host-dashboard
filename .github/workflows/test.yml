@@ -11,14 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: lint daemon
-        uses: golangci/golangci-lint-action@5c56cd6c9dc07901af25baab6f2b0d9f3b7c3018
       - uses: actions/setup-node@v2
         with:
           node-version: '13'
+      - run: make install-dependencies
       - name: lint web
-        run: |
-          make install-dependencies lint-web
+        run: make lint-web
+      - name: build web assets # built web assets must exist or lint will fail
+        run : make build-web
+      - name: lint daemon
+        uses: golangci/golangci-lint-action@5c56cd6c9dc07901af25baab6f2b0d9f3b7c3018
   build:
     runs-on: ubuntu-latest
     strategy:

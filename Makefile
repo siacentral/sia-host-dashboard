@@ -21,7 +21,7 @@ install-dependencies:
 	cd web && \
 	npm i
 
-build-web: install-depencencies
+build-web: install-dependencies
 	cd web && \
 	rm -rf dist && \
 	npm run build

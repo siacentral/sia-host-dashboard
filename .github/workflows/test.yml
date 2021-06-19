@@ -37,9 +37,3 @@ jobs:
           go-version: ^v1.16
       - name: build ${{ matrix.os }}/${{ matrix.arch }}
         run: GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} make build-web static
-      - name: upload binaries
-        uses: actions/upload-artifact@v2
-        with:
-          name: dashboard ${{ matrix.os }}/${{ matrix.arch }}
-          path: bin/*
-          retention-days: 30

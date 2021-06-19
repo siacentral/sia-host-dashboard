@@ -34,4 +34,4 @@ jobs:
         with:
           go-version: ^v1.16
       - name: build ${{ matrix.os }}/${{ matrix.arch }}
-        run: GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} make static
+        run: GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} make build-web static

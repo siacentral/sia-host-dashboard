@@ -29,7 +29,7 @@ build-web: install-depencencies
 run: build-web
 	go run daemon/daemon.go --data-path $(PWD)/data
 
-static: 
+static:
 	CGO_ENABLED=0 go build -trimpath -ldflags="-X 'github.com/siacentral/sia-host-dashboard/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/sia-host-dashboard/build.buildTime=${BUILD_TIME}' -buildid='' -s -w -extldflags '-static'" -tags='netgo timetzdata'  -o ./bin/dashboard ./daemon
 
 release: lint-web lint-daemon build-web

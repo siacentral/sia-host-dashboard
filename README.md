@@ -13,6 +13,8 @@ from the blockchain to provide accurate and powerful financial and health statis
 + Track storage and data usage
 + Track earned and potential income
 
+![host dashboard](https://siasky.net/fABqlyaqrp-0b9Ks0YhMdheyaSaECYRdhKGf6AXoScn7vg)
+
 ## Running
 1. Download the latest release corresponding to your platform
 2. Open command prompt or terminal

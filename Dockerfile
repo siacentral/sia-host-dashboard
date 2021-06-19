@@ -30,4 +30,4 @@ COPY --from=buildgo /app/bin/dashboard /
 
 ENV SIA_API_ADDR="localhost:9980"
 
-ENTRYPOINT [ "/dashboard", "--std-out" "--data-path /data" ]
+ENTRYPOINT [ "/dashboard", "--std-out", "--data-path", "/data" ]

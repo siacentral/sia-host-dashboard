@@ -32,6 +32,3 @@ static:
 
 release: lint-web lint-daemon build-web
 	./release.sh
-
-docker:
-	docker build -t siacentral/host-dashboard .

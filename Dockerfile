@@ -19,10 +19,9 @@ WORKDIR /app
 COPY . .
 COPY --from=buildnode /web/dist web/dist
 
-RUN apk -U --no-cache add upx git gcc make ca-certificates \
+RUN apk -U --no-cache add git gcc make ca-certificates \
 	&& update-ca-certificates \
-	&& make static \
-	&& upx /app/bin/dashboard
+	&& make static
 
 # production
 FROM scratch

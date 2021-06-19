@@ -32,5 +32,5 @@ run: build-web
 static:
 	CGO_ENABLED=0 go build -trimpath -ldflags="-X 'github.com/siacentral/sia-host-dashboard/daemon/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/sia-host-dashboard/daemon/build.buildTime=${BUILD_TIME}' -buildid='' -s -w -extldflags '-static'" -tags='netgo timetzdata'  -o ./bin/dashboard ./daemon
 
-release: lint-web lint-daemon build-web
+release: build-web
 	./release.sh

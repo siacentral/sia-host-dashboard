@@ -232,10 +232,24 @@ func syncHostStatus() error {
 		})
 	}
 
-	if wallet.ConfirmedSiacoinBalance.Cmp64(0) != 1 {
+	// show an alert if the wallet balance has less than 100GBMo worth of collateral
+	collateral100GBMo := host.InternalSettings.Collateral.Mul64(100 << 30).Mul64(4320)
+	if wallet.ConfirmedSiacoinBalance.Cmp64(0) == 0 {
 		cache.AddAlert(AlertWalletBalance, types.HostAlert{
 			Severity: "severe",
 			Text:     "Wallet has no more Siacoins to use for collateral. Send more Siacoins.",
+			Type:     "wallet",
+		})
+	} else if wallet.ConfirmedSiacoinBalance.Cmp64(10) < 0 {
+		cache.AddAlert(AlertWalletBalance, types.HostAlert{
+			Severity: "severe",
+			Text:     "Wallet has less than 10SC available for collateral. Send more Siacoins.",
+			Type:     "wallet",
+		})
+	} else if wallet.ConfirmedSiacoinBalance.Cmp(collateral100GBMo) < 0 {
+		cache.AddAlert(AlertWalletBalance, types.HostAlert{
+			Severity: "warning",
+			Text:     "Wallet is running low on funds. Send more Siacoins.",
 			Type:     "wallet",
 		})
 	}

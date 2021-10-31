@@ -28,6 +28,7 @@ var (
 	siaAddr     string
 	disableCors bool
 	logStdOut   bool
+	skipBrowser bool
 	logFile     *os.File
 )
 
@@ -49,6 +50,7 @@ func init() {
 	flag.StringVar(&siaAddr, "sia-api-addr", os.Getenv("SIA_API_ADDR"), "the url used to connect to Sia. Defaults to \"localhost:9980\"")
 	flag.BoolVar(&disableCors, "disable-cors", false, "disables cross-origin requests, prevents cross-origin browser requests to the API")
 	flag.BoolVar(&logStdOut, "std-out", false, "sends output to stdout instead of the log file")
+	flag.BoolVar(&skipBrowser, "skip-browser", false, "skips opening the browser")
 	flag.Parse()
 
 	if len(siaAddr) == 0 {
@@ -116,7 +118,7 @@ func main() {
 
 	cmd.StartedInExplorer()
 
-	writeLine("Starting Host Dashboard %s", build.Version)
+	writeLine("Starting Host Dashboard %s", build.Version())
 	writeLine("Revision: %s Build Time: %s", build.Revision(), build.Time().Format(time.RFC1123))
 	writeLine("Syncing Sia Data...")
 
@@ -137,7 +139,9 @@ func main() {
 
 	writeLine("Host Dashboard Ready at: %s", openAddr)
 
-	openbrowser(openAddr)
+	if !skipBrowser {
+		openbrowser(openAddr)
+	}
 
 	sigChan := make(chan os.Signal, 1)
 

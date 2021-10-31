@@ -84,7 +84,7 @@ linters:
     - gocritic
     - goconst
     - gofmt
-    - golint
+    - revive
     - gosec
     - gosimple
     - govet

@@ -2,12 +2,8 @@ package build
 
 import "time"
 
-const (
-	// Version the current version of the dashboard
-	Version = "v1.0.0"
-)
-
 var (
+	version     string
 	gitRevision string
 	buildTime   string
 
@@ -36,12 +32,19 @@ var (
 	}()
 )
 
+// Version returns the current version
+func Version() string {
+	if len(version) == 0 {
+		return "devel"
+	}
+	return version
+}
+
 // Revision returns the current revision
 func Revision() string {
 	if len(gitRevision) == 0 {
 		return "devel"
 	}
-
 	return gitRevision
 }
 

@@ -77,7 +77,8 @@ export default {
 			alerts: [],
 			snapshots: [],
 			averageSettings: {},
-			displayCurrency: 'usd'
+			displayCurrency: 'usd',
+			debounceTimeout: null
 		};
 	},
 	computed: {
@@ -147,13 +148,15 @@ export default {
 		},
 		onSetDate(n) {
 			try {
+				this.clearTimeout(this.debounceTimeout);
+
 				const d = new Date(this.currentDate);
 
 				d.setDate(d.getDate() + n);
 
 				this.currentDate = d;
 
-				this.loadHostData();
+				this.debounceTimeout = setTimeout(this.loadHostData, 300);
 			} catch (ex) {
 				console.error('App.onChangeDate', ex);
 			}

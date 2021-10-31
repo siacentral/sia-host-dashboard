@@ -2,7 +2,6 @@ package sync
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/siacentral/sia-host-dashboard/dashboard/cache"
@@ -117,8 +116,6 @@ func syncHostConnectivity() error {
 	}
 
 	netaddress := string(host.ExternalSettings.NetAddress)
-
-	log.Printf("host netaddress %s", netaddress)
 
 	if len(netaddress) == 0 {
 		cache.AddAlert(AlertSyncError, types.HostAlert{

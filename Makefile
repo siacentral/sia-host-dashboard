@@ -1,3 +1,5 @@
+VERSION="v1.0.1"
+
 ifeq "$(shell git status --porcelain=v1 2>/dev/null)" "" 
 GIT_REVISION=$(shell git rev-parse --short HEAD)
 BUILD_TIME=$(shell git show -s --format=%ci HEAD)
@@ -30,7 +32,7 @@ run: build-web
 	go run ./dashboard --data-path ./data
 
 static:
-	CGO_ENABLED=0 go build -trimpath -ldflags="-X 'github.com/siacentral/sia-host-dashboard/dashboard/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/sia-host-dashboard/dashboard/build.buildTime=${BUILD_TIME}' -s -w" -tags='netgo timetzdata' -o bin/ ./dashboard
+	CGO_ENABLED=0 go build -trimpath -ldflags="-X 'github.com/siacentral/sia-host-dashboard/dashboard/build.version=${VERSION}' -X 'github.com/siacentral/sia-host-dashboard/dashboard/build.gitRevision=${GIT_REVISION}' -X 'github.com/siacentral/sia-host-dashboard/dashboard/build.buildTime=${BUILD_TIME}' -s -w" -tags='netgo timetzdata' -o bin/ ./dashboard
 
 release: build-web
 	./release.sh

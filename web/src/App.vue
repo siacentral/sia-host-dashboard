@@ -148,7 +148,7 @@ export default {
 		},
 		onSetDate(n) {
 			try {
-				this.clearTimeout(this.debounceTimeout);
+				clearTimeout(this.debounceTimeout);
 
 				const d = new Date(this.currentDate);
 

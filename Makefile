@@ -1,6 +1,6 @@
 -include .env.local
 
-VERSION="v1.0.2"
+VERSION="v1.0.3"
 
 ifeq "$(shell git status --porcelain=v1 2>/dev/null)" "" 
 GIT_REVISION=$(shell git rev-parse --short HEAD)

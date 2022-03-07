@@ -37,6 +37,9 @@ export default {
 			active: -1
 		};
 	},
+	created() {
+		console.log('okay');
+	},
 	computed: {
 		...mapState(['currency', 'exchangeRateSC']),
 		revenueColors() {
@@ -52,44 +55,40 @@ export default {
 			];
 		},
 		revenueData() {
-			return this.snapshots.reduce((d, s, i) => {
-				const timestamp = new Date(s.timestamp),
-					last = d.data[0].length - 1,
-					prev = i - 1;
-
+			console.log('revenueData');
+			let data = this.snapshots.reduce((d, s, i) => {
+				const timestamp = new Date(s.timestamp);
 				timestamp.setMonth(timestamp.getMonth(), 1);
+				timestamp.setHours(0, 0, 0, 0);
+				const id = timestamp.getTime();
 
-				if (i === 0) {
-					d.data[0].push(new BigNumber(s.earned_revenue));
-					d.data[1].push(new BigNumber(s.potential_revenue));
-					d.labels.push(new Date(timestamp).toLocaleString([], {
-						month: 'short',
-						year: 'numeric'
-					}));
-					return d;
+				if (!d[id]) {
+					d[id] = {
+						timestamp: timestamp,
+						earned: new BigNumber(0),
+						potential: new BigNumber(0)
+					};
 				}
 
-				const prevTimestamp = new Date(this.snapshots[prev].timestamp);
-
-				prevTimestamp.setMonth(prevTimestamp.getMonth(), 1);
-
-				if (prevTimestamp.getTime() !== timestamp.getTime()) {
-					d.data[0].push(new BigNumber(s.earned_revenue));
-					d.data[1].push(new BigNumber(s.potential_revenue));
-					d.labels.push(new Date(timestamp).toLocaleString([], {
-						month: 'short',
-						year: 'numeric'
-					}));
-				} else {
-					d.data[0][last] = d.data[0][last].plus(new BigNumber(s.earned_revenue));
-					d.data[1][last] = d.data[1][last].plus(s.potential_revenue);
-				}
-
+				d[id].earned = d[id].earned.plus(s.earned_revenue);
+				d[id].potential = d[id].potential.plus(s.potential_revenue);
 				return d;
-			}, {
-				data: [[], []],
-				labels: []
-			});
+			}, {});
+			const keys = Object.keys(data);
+			data = keys.map(k => data[k]);
+			data.sort((a, b) => a.timestamp - b.timestamp);
+
+			const labels = data.map(d => d.timestamp.toLocaleString([], {
+					month: 'short',
+					year: 'numeric'
+				})),
+				earned = data.map(d => d.earned),
+				potential = data.map(d => d.potential);
+
+			return {
+				data: [earned, potential],
+				labels
+			};
 		},
 		revenueEarnedLabel() {
 			let i = this.active;

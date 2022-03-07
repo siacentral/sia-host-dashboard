@@ -56,47 +56,45 @@ export default {
 			];
 		},
 		contractData() {
-			return this.snapshots.reduce((d, s, i) => {
-				const timestamp = new Date(s.timestamp),
-					last = d.data[0].length - 1,
-					prev = i - 1;
-
+			let data = this.snapshots.reduce((d, s, i) => {
+				const timestamp = new Date(s.timestamp);
 				timestamp.setMonth(timestamp.getMonth(), 1);
+				timestamp.setHours(0, 0, 0, 0);
+				const id = timestamp.getTime();
+				console.log(timestamp, id);
 
-				if (i === 0) {
-					d.data[0].push(new BigNumber(s.successful_contracts));
-					d.data[1].push(new BigNumber(s.failed_contracts));
-					d.data[2].push(new BigNumber(s.expired_contracts));
-					d.labels.push(new Date(timestamp).toLocaleString([], {
-						month: 'short',
-						year: 'numeric'
-					}));
-					return d;
+				if (!d[id]) {
+					d[id] = {
+						successful_contracts: new BigNumber(0),
+						failed_contracts: new BigNumber(0),
+						expired_contracts: new BigNumber(0),
+						timestamp
+					};
 				}
 
-				const prevTimestamp = new Date(this.snapshots[prev].timestamp);
-
-				prevTimestamp.setMonth(prevTimestamp.getMonth(), 1);
-
-				if (prevTimestamp.getTime() !== timestamp.getTime()) {
-					d.data[0].push(new BigNumber(s.successful_contracts));
-					d.data[1].push(new BigNumber(s.failed_contracts));
-					d.data[2].push(new BigNumber(s.expired_contracts));
-					d.labels.push(new Date(timestamp).toLocaleString([], {
-						month: 'short',
-						year: 'numeric'
-					}));
-				} else {
-					d.data[0][last] = d.data[0][last].plus(new BigNumber(s.successful_contracts));
-					d.data[1][last] = d.data[1][last].plus(new BigNumber(s.failed_contracts));
-					d.data[2][last] = d.data[2][last].plus(new BigNumber(s.expired_contracts));
-				}
-
+				d[id].successful_contracts = d[id].successful_contracts.plus(s.successful_contracts);
+				d[id].failed_contracts = d[id].failed_contracts.plus(s.failed_contracts);
+				d[id].expired_contracts = d[id].expired_contracts.plus(s.expired_contracts);
 				return d;
-			}, {
-				data: [[], [], []],
-				labels: []
-			});
+			}, {});
+
+			const keys = Object.keys(data);
+			data = keys.map(k => data[k]);
+			data.sort((a, b) => a.timestamp - b.timestamp);
+
+			const labels = data.map(d => d.timestamp.toLocaleString([], {
+					month: 'short',
+					year: 'numeric'
+				})),
+				successful = data.map(d => d.successful_contracts),
+				failed = data.map(d => d.failed_contracts),
+				expired = data.map(d => d.expired_contracts);
+
+			console.log(successful);
+			return {
+				data: [successful, failed, expired],
+				labels
+			};
 		},
 		contractSuccessLabel() {
 			let i = this.active;

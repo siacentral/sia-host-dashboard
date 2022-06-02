@@ -13,7 +13,7 @@ from the blockchain to provide accurate and powerful financial and health statis
 + Track storage and data usage
 + Track earned and potential income
 
-![host dashboard](https://siacentral.s3.filebase.com/resources/host-dashboard/host dashboard.png)
+![host dashboard](https://siacentral.s3.filebase.com/resources/host-dashboard/host%20dashboard.png)
 
 ## Running
 1. Download the latest release corresponding to your platform

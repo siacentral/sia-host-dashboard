@@ -44,6 +44,12 @@ Changes the address and port of the Sia API the dashboard accesses
 dashboard --sia-addr localhost:9980
 ```
 
+## Updating
+1. Stop dashboard
+2. Download the latest release
+3. Replace old dashboard binary with downloaded one
+4. Start dashboard
+
 ## Docker
 The dashboard needs access to a running Sia node. To run the dashboard in a docker container
 requires using host networking for Sia and Dashboard or creating a separate docker network so containers can be accessed by name.

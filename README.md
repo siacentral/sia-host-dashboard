@@ -1,4 +1,4 @@
-[![Docker Pulls](https://img.shields.io/docker/pulls/siacentral/host-dashboard?color=19cf86&style=for-the-badge)](https://hub.docker.com/r/siacentral/host-dashboard)
+**Sia Host Dashboard is deprecated and replaced by the Sia Foundation's [hostd](https://github.com/SiaFoundation/hostd)**
 
 A simple and powerful dashboard for Sia network Hosts. Combines data for your node with data
 from the blockchain to provide accurate and powerful financial and health statistics for hosts.
